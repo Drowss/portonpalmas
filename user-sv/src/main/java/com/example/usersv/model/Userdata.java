@@ -20,5 +20,6 @@ public class Userdata {
     private String password;
     private String address;
     private String cellphone;
+    private String role;
     private Long idCart;
 }
