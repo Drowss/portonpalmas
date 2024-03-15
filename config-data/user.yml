@@ -1,0 +1,23 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: user
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  datasource:
+    url: jdbc:postgresql://java_db:5432/user_service
+    username: postgres
+    password: ${DATABASE_PASSWORD}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-app:8761/eureka
+expiration: ${expiration}
+secretKey: ${secretKey}

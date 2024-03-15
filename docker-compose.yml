@@ -1,0 +1,83 @@
+version: '3.9'
+
+services:
+  horse-app:
+    container_name: horse-app
+    build: horse-sv
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - access=${access}
+      - secret=${secret}
+      - HORSES_BUCKETNAME=${HORSES_BUCKETNAME}
+      - region=${region}
+      - gitpassword=${gitpassword}
+    depends_on:
+      - java_db
+      - eureka-app
+      - config-app
+
+  product-app:
+    container_name: product-app
+    build: productsv
+    ports:
+      - "8081:8081"
+    environment:
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - access=${access}
+      - secret=${secret}
+      - PRODUCTS_BUCKETNAME=${PRODUCTS_BUCKETNAME}
+      - region=${region}
+    depends_on:
+      - java_db
+      - eureka-app
+      - config-app
+
+  eureka-app:
+    container_name: eureka-app
+    build: eureka-sv
+    ports:
+      - "8761:8761"
+
+  config-app:
+    container_name: config-app
+    build: config-server
+    ports:
+      - "8888:8888"
+    environment:
+      - gitpassword=${gitpassword}
+    depends_on:
+      - eureka-app
+
+  cart-app:
+    container_name: cart-app
+    build: CartService
+    ports:
+      - "8082:8082"
+    environment:
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+    depends_on:
+      - java_db
+      - eureka-app
+      - config-app
+
+  api-gateway-app:
+    container_name: api-gateway-app
+    build: api-gateway
+    ports:
+      - "443:443"
+    depends_on:
+      - eureka-app
+      - config-app
+
+  java_db:
+    container_name: java_db
+    image: postgres:13.3
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"

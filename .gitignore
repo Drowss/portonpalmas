@@ -1,0 +1,6 @@
+.idea
+horse-sv/src/main/resources/application.yml
+.env
+**/mvnw
+**/mvnw.cmd
+**/help.md

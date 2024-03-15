@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: api-gateway
+server:
+  port: 443
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-app:8761/eureka/
+spring.cloud.gateway:
+  discovery:
+    locator:
+      enabled: true
+      lower-case-service-id: true
+api-gateway:
+  logging:
+    level:
+      root: INFO
+      org.springframework.web: DEBUG
