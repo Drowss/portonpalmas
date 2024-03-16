@@ -84,6 +84,9 @@ services:
     depends_on:
       - eureka-app
       - config-app
+    environment:
+        - expiration=${expiration}
+        - secretKey=${secretKey}
 
   java_db:
     container_name: java_db

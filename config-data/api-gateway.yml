@@ -17,3 +17,5 @@ api-gateway:
     level:
       root: INFO
       org.springframework.web: DEBUG
+expiration: ${expiration}
+secretKey: ${secretKey}
