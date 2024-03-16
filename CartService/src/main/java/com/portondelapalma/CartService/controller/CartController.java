@@ -24,8 +24,8 @@ public class CartController {
     }
 
     @PostMapping("/create")
-    public void createCart(@RequestBody Cart cart) {
-        iCartService.createCart(cart);
+    public Long createCart(@RequestBody Cart cart) {
+        return iCartService.createCart(cart);
     }
 
     @GetMapping("/get-cart")

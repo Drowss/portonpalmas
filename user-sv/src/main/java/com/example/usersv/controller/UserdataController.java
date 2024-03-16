@@ -1,9 +1,11 @@
 package com.example.usersv.controller;
 
+import com.example.usersv.dto.UserdataDto;
 import com.example.usersv.entity.UserLoginRequest;
 import com.example.usersv.model.Userdata;
 import com.example.usersv.service.UserdataService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,7 +26,12 @@ public class UserdataController {
     }
 
     @PostMapping("/register")
-    public void register(@RequestBody Userdata userdata) {
-        userdataService.saveUserdata(userdata);
+    public UserdataDto register(@Valid @RequestBody Userdata userdata) {
+        return userdataService.saveUserdata(userdata);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        return userdataService.logout(response);
     }
 }

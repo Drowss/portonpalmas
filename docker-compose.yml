@@ -62,6 +62,20 @@ services:
       - eureka-app
       - config-app
 
+  user-app:
+    container_name: user-app
+    build: user-sv
+    ports:
+      - "8083:8083"
+    environment:
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - expiration=${expiration}
+      - secretKey=${secretKey}
+    depends_on:
+      - java_db
+      - eureka-app
+      - config-app
+
   api-gateway-app:
     container_name: api-gateway-app
     build: api-gateway
