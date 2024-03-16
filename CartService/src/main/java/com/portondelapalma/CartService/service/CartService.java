@@ -24,9 +24,9 @@ public class CartService implements ICartService {
 
     @Override
     public Long createCart(Cart cart) {
-        iCartRepository.save(cart);
+        Cart cart2 = iCartRepository.save(cart);
         logger.info("Carrito creado");
-        return cart.getId();
+        return cart2.getId();
     }
 
     @Override

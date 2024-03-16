@@ -45,20 +45,24 @@ public class UserdataService {
                 .total(0L)
                 .build();
         userdata.setIdCart(iCartAPI.createCart(cartDto));
-        userdata.setPassword(passwordEncoder.encode(userdata.getPassword()));
+        userdata.setPassword(this.passwordEncoder.encode(userdata.getPassword()));
         iUserdataRepository.save(userdata);
         return modelMapper.map(userdata, UserdataDto.class);
     }
 
     public ResponseEntity<?> loginUser(UserLoginRequest loginRequest, HttpServletResponse response) {
         Userdata userdata = iUserdataRepository.findUserdataByEmail(loginRequest.getEmail());
+        System.out.println(userdata.getEmail() +" " + userdata.getPassword() + " " + userdata.getRole());
 
-        if (passwordEncoder.matches(loginRequest.getPassword(), userdata.getPassword())) {
+        if (!this.passwordEncoder.matches(loginRequest.getPassword(), userdata.getPassword())) {
             throw new UsernameNotFoundException("Invalid username or password");
         }
         String token = jwtUtils.generateAccesToken(userdata.getRole(), userdata.getName());
         Cookie cookie = new Cookie("token", token);
         cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setDomain("localhost");
+        cookie.setPath("/");
         cookie.setMaxAge((int) Duration.ofMinutes(1440L).toSeconds()); // 1 dia
         response.addCookie(cookie);
         return ResponseEntity.ok().build();

@@ -69,8 +69,8 @@ services:
       - "8083:8083"
     environment:
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-      - expiration=${expiration}
       - secretKey=${secretKey}
+      - expiration=${expiration}
     depends_on:
       - java_db
       - eureka-app
