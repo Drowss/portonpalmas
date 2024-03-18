@@ -16,7 +16,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/v1")
+@RequestMapping("product/v1")
 public class ProductController {
 
     @Autowired
