@@ -60,8 +60,6 @@ public class UserdataService {
         String token = jwtUtils.generateAccesToken(userdata.getRole(), userdata.getName());
         Cookie cookie = new Cookie("token", token);
         cookie.setHttpOnly(true);
-        cookie.setSecure(false);
-        cookie.setDomain("localhost");
         cookie.setPath("/");
         cookie.setMaxAge((int) Duration.ofMinutes(1440L).toSeconds()); // 1 dia
         response.addCookie(cookie);

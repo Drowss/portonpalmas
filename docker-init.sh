@@ -6,5 +6,5 @@ for d in $(find . -type f -name 'pom.xml' -printf '%h\n'); do
     cd -
 done
 
-echo "Running docker-compose up"
-docker-compose up
+echo "Running docker-compose up -d --build --force-recreate"
+docker-compose up -d --build --force-recreate

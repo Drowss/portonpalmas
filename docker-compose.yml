@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   horse-app:
@@ -13,10 +13,6 @@ services:
       - HORSES_BUCKETNAME=${HORSES_BUCKETNAME}
       - region=${region}
       - gitpassword=${gitpassword}
-    depends_on:
-      - java_db
-      - eureka-app
-      - config-app
 
   product-app:
     container_name: product-app
@@ -29,10 +25,6 @@ services:
       - secret=${secret}
       - PRODUCTS_BUCKETNAME=${PRODUCTS_BUCKETNAME}
       - region=${region}
-    depends_on:
-      - java_db
-      - eureka-app
-      - config-app
 
   eureka-app:
     container_name: eureka-app
@@ -47,8 +39,6 @@ services:
       - "8888:8888"
     environment:
       - gitpassword=${gitpassword}
-    depends_on:
-      - eureka-app
 
   cart-app:
     container_name: cart-app
@@ -57,10 +47,6 @@ services:
       - "8082:8082"
     environment:
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-    depends_on:
-      - java_db
-      - eureka-app
-      - config-app
 
   user-app:
     container_name: user-app
@@ -71,22 +57,15 @@ services:
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - secretKey=${secretKey}
       - expiration=${expiration}
-    depends_on:
-      - java_db
-      - eureka-app
-      - config-app
 
   api-gateway-app:
     container_name: api-gateway-app
     build: api-gateway
     ports:
       - "443:443"
-    depends_on:
-      - eureka-app
-      - config-app
     environment:
-        - expiration=${expiration}
-        - secretKey=${secretKey}
+      - expiration=${expiration}
+      - secretKey=${secretKey}
 
   java_db:
     container_name: java_db
