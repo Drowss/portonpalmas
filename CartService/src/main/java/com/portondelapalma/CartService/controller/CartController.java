@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("cart/v1")
+@CrossOrigin()
 public class CartController {
 
     @Autowired

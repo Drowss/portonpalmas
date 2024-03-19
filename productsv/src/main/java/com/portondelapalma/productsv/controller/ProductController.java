@@ -17,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("product/v1")
+@CrossOrigin()
 public class ProductController {
 
     @Autowired
@@ -33,8 +34,8 @@ public class ProductController {
     }
 
     @PostMapping("/upload") //Endpoint para admin
-    public ProductDto upload(@RequestPart("file") MultipartFile file, @Valid @RequestPart("horse") String horseJson) throws JsonProcessingException {
-        return iProductService.createProduct(file, horseJson);
+    public ProductDto upload(@RequestPart("file") MultipartFile file, @Valid @RequestPart("product") String productJson) throws JsonProcessingException {
+        return iProductService.createProduct(file, productJson);
     }
 
     @DeleteMapping("/delete/{idProduct}") //Endpoint para admin
