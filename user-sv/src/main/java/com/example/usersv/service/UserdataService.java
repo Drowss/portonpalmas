@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -51,13 +52,17 @@ public class UserdataService {
     }
 
     public ResponseEntity<?> loginUser(UserLoginRequest loginRequest, HttpServletResponse response) {
-        Userdata userdata = iUserdataRepository.findUserdataByEmail(loginRequest.getEmail());
-        System.out.println(userdata.getEmail() +" " + userdata.getPassword() + " " + userdata.getRole());
+        Userdata userdata = null;
+        try {
+            userdata = iUserdataRepository.findUserdataByEmail(loginRequest.getEmail());
+        } catch (Exception e) {
+            throw new BadCredentialsException("Invalid username or password");
+        }
 
         if (!this.passwordEncoder.matches(loginRequest.getPassword(), userdata.getPassword())) {
-            throw new UsernameNotFoundException("Invalid username or password");
+            throw new BadCredentialsException("Invalid username or password");
         }
-        String token = jwtUtils.generateAccesToken(userdata.getRole(), userdata.getName());
+        String token = jwtUtils.generateAccesToken(userdata.getRole(), userdata.getName(), userdata.getIdCart());
         Cookie cookie = new Cookie("token", token);
         cookie.setHttpOnly(true);
         cookie.setPath("/");

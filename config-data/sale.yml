@@ -1,0 +1,22 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: sale
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  datasource:
+    url: jdbc:postgresql://java_db:5432/sale_service
+    username: postgres
+    password: ${DATABASE_PASSWORD}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-app:8761/eureka
+secretKey: ${secretKey}

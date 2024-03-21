@@ -1,5 +1,6 @@
 package com.example.usersv.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.Email;
@@ -33,8 +34,9 @@ public class Userdata {
 
     @NotBlank(message = "El número de teléfono es obligatorio")
     private String cellphone;
-
-    @NotBlank(message = "El rol es obligatorio")
+    @Column(unique = true)
+    @NotNull(message = "El DNI es obligatorio")
+    private String dni;
     private String role;
     private Long idCart;
 }

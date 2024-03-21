@@ -15,5 +15,6 @@ public class UserdataDto {
     private String name;
     private String address;
     private String cellphone;
+    private String dni;
     private Long idCart;
 }

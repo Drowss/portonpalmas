@@ -19,9 +19,10 @@ public class JwtUtils {
     @Value("${expiration}")
     private String timeExpiration;
 
-    public String generateAccesToken(String Role, String username) {
+    public String generateAccesToken(String Role, String username, Long idCart) {
         return Jwts.builder()
                 .claim("role", Role)
+                .claim("cart", idCart)
                 .claim("sub", username)
                 .claim("iat", new Date(System.currentTimeMillis()))
                 .claim("exp", new Date(System.currentTimeMillis() + Long.parseLong(timeExpiration)))

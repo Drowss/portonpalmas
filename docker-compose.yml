@@ -1,6 +1,31 @@
 version: "3.9"
 
 services:
+  config-app:
+    container_name: config-app
+    build: config-server
+    ports:
+      - "8888:8888"
+    environment:
+      - gitpassword=${gitpassword}
+
+  java_db:
+    container_name: java_db
+    image: postgres:13.3
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+
+  eureka-app:
+    container_name: eureka-app
+    build: eureka-sv
+    ports:
+      - "8761:8761"
+
   horse-app:
     container_name: horse-app
     build: horse-sv
@@ -26,20 +51,6 @@ services:
       - PRODUCTS_BUCKETNAME=${PRODUCTS_BUCKETNAME}
       - region=${region}
 
-  eureka-app:
-    container_name: eureka-app
-    build: eureka-sv
-    ports:
-      - "8761:8761"
-
-  config-app:
-    container_name: config-app
-    build: config-server
-    ports:
-      - "8888:8888"
-    environment:
-      - gitpassword=${gitpassword}
-
   cart-app:
     container_name: cart-app
     build: CartService
@@ -58,6 +69,16 @@ services:
       - secretKey=${secretKey}
       - expiration=${expiration}
 
+  sale-app:
+    container_name: sale-app
+    build: sale-sv
+    ports:
+      - "8084:8084"
+    environment:
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - secretKey=${secretKey}
+      - expiration=${expiration}
+
   api-gateway-app:
     container_name: api-gateway-app
     build: api-gateway
@@ -66,14 +87,3 @@ services:
     environment:
       - expiration=${expiration}
       - secretKey=${secretKey}
-
-  java_db:
-    container_name: java_db
-    image: postgres:13.3
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-    volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    ports:
-      - "5432:5432"
