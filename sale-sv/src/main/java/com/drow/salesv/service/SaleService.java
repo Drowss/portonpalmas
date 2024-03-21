@@ -3,6 +3,7 @@ package com.drow.salesv.service;
 import com.drow.salesv.dto.CartDto;
 import com.drow.salesv.dto.ProductDto;
 import com.drow.salesv.jwt.JwtUtils;
+import com.drow.salesv.model.Sale;
 import com.drow.salesv.repository.ICartAPI;
 import com.drow.salesv.repository.IProductAPI;
 import com.drow.salesv.repository.ISaleRepository;
@@ -11,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -57,6 +59,14 @@ public class SaleService {
         response.put("products", products);
         products.forEach(productDto -> iProductAPI.modifyStock(productDto.getIdProduct(), productDto.getStock() - cartDto.getItems().get(productDto.getNameProduct())));
         response.put("Total", total);
+        Sale sale = Sale.builder()
+                .date(LocalDate.now())
+                .userEmail(jwtUtils.getUserEmailFromRequest(token))
+                .items(cartDto.getItems())
+                .total(total)
+                .dni(jwtUtils.getDniFromRequest(token))
+                .build();
+        iSaleRepository.save(sale);
         return response;
 
     }

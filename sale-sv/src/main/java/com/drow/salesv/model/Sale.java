@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Builder
@@ -20,10 +21,11 @@ public class Sale {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
     private Long total;
-    private Long userId;
+    private String userEmail;
+    private String dni;
 
     @ElementCollection
-    private List<Long> items;
+    private Map<String, Integer> items;
 
     private LocalDate date;
 }

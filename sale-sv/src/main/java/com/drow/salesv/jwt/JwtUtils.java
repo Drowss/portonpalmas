@@ -25,13 +25,26 @@ public class JwtUtils {
     }
 
     public Long getCartFromRequest(String token) {
-        Claims accessClaims = Jwts.parser()
+        Claims accessClaims = this.getClaims(token);
+        return accessClaims.get("cart", Long.class);
+    }
+
+    public String getUserEmailFromRequest(String token) {
+        Claims accessClaims = this.getClaims(token);
+        return accessClaims.get("userEmail", String.class);
+    }
+
+    public String getDniFromRequest(String token) {
+        Claims accessClaims = this.getClaims(token);
+        return accessClaims.get("dni", String.class);
+    }
+
+    public Claims getClaims(String token) {
+        return Jwts.parser()
                 .verifyWith((key))
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-
-        return accessClaims.get("cart", Long.class);
     }
 
     public Boolean isExpired(String token) {

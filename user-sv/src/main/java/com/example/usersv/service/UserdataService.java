@@ -62,7 +62,7 @@ public class UserdataService {
         if (!this.passwordEncoder.matches(loginRequest.getPassword(), userdata.getPassword())) {
             throw new BadCredentialsException("Invalid username or password");
         }
-        String token = jwtUtils.generateAccesToken(userdata.getRole(), userdata.getName(), userdata.getIdCart());
+        String token = jwtUtils.generateAccesToken(userdata.getRole(), userdata.getName(), userdata.getIdCart(), userdata.getEmail(), userdata.getDni());
         Cookie cookie = new Cookie("token", token);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
