@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("cart/v1")
-@CrossOrigin()
 public class CartController {
 
     @Autowired
@@ -30,7 +29,7 @@ public class CartController {
     }
 
     @GetMapping("/get-cart")
-    public CartDto getCart(@RequestParam Long idCart) {
+    public CartDto getCart(Long idCart) {
         return iCartService.findCart(idCart);
     }
 }

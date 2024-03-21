@@ -22,7 +22,6 @@ import static java.net.HttpURLConnection.HTTP_OK;
 
 @RestController
 @RequestMapping("horse/v1")
-@CrossOrigin()
 public class HorseController {
 
     @Autowired

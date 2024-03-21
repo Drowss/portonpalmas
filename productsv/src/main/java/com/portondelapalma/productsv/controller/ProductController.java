@@ -17,7 +17,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("product/v1")
-@CrossOrigin()
 public class ProductController {
 
     @Autowired
@@ -62,6 +61,11 @@ public class ProductController {
     @GetMapping("/getByName") //Endpoint consumido por cart
     private ProductDto getByName(@RequestParam String nameProduct) {
         return iProductService.getByName(nameProduct);
+    }
+
+    @GetMapping("/getName")
+    public ProductDto getName(String name) {
+        return iProductService.getByName(name);
     }
 
 }

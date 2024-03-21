@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/v1")
 public class SaleController {
@@ -15,7 +17,7 @@ public class SaleController {
     private SaleService saleService;
 
     @PostMapping("/successful")
-    public String successful(HttpServletRequest request) {
+    public Map<String, Object> successful(HttpServletRequest request) {
         return saleService.successful(request);
     }
 }

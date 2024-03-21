@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductDto {
+    private Long idProduct;
     @NotBlank(message = "El campo 'nameProduct' no puede estar en blanco.")
     @Size(min = 1, max = 100, message = "El campo 'nameProduct' debe tener entre 1 y 100 caracteres.")
     private String nameProduct;

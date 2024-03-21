@@ -1,5 +1,6 @@
 package com.portondelapalma.CartService.repository;
 
+import com.portondelapalma.CartService.dto.CartDto;
 import com.portondelapalma.CartService.model.Cart;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
