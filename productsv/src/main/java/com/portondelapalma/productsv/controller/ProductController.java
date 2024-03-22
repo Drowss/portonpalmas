@@ -64,7 +64,7 @@ public class ProductController {
     }
 
     @GetMapping("/getName")
-    public ProductDto getName(String name) {
+    public ProductDto getName(@RequestParam String name) {
         return iProductService.getByName(name);
     }
 

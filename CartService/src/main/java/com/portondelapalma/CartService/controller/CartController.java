@@ -29,7 +29,7 @@ public class CartController {
     }
 
     @GetMapping("/get-cart")
-    public CartDto getCart(Long idCart) {
+    public CartDto getCart(@RequestParam Long idCart) {
         return iCartService.findCart(idCart);
     }
 }
