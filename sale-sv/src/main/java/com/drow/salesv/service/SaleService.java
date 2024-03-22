@@ -45,6 +45,9 @@ public class SaleService {
         Long total = 0L;
         Long cart = jwtUtils.getCartFromRequest(token);
         CartDto cartDto = iCartAPI.findById(cart);
+        if (cartDto.getTotal() == 0L) {
+            throw new RuntimeException("Cart is empty");
+        }
         Set<String> keys = cartDto.getItems().keySet();
         List<ProductDto> products = new ArrayList<>();
         for (String key : keys) {
@@ -54,11 +57,14 @@ public class SaleService {
             Integer quantity = cartDto.getItems().get(key);
             ProductDto productDto = iProductAPI.getProductByName(key);
             total += productDto.getPrice() * quantity;
+            productDto.setQuantity(cartDto.getItems().get(productDto.getNameProduct()));
             products.add(productDto);
         }
         response.put("products", products);
-        products.forEach(productDto -> iProductAPI.modifyStock(productDto.getIdProduct(), productDto.getStock() - cartDto.getItems().get(productDto.getNameProduct())));
-        response.put("Total", total);
+        products.forEach(productDto ->
+                iProductAPI.modifyStock(productDto.getIdProduct(),
+                        productDto.getStock() - cartDto.getItems().get(productDto.getNameProduct())));
+        response.put("total", total);
         Sale sale = Sale.builder()
                 .date(LocalDate.now())
                 .userEmail(jwtUtils.getUserEmailFromRequest(token))
@@ -66,7 +72,11 @@ public class SaleService {
                 .total(total)
                 .dni(jwtUtils.getDniFromRequest(token))
                 .build();
+        response.put("email", sale.getUserEmail());
+        response.put("dni", sale.getDni());
+        response.put("date", sale.getDate());
         iSaleRepository.save(sale);
+        iCartAPI.emptyCart(token);
         return response;
 
     }

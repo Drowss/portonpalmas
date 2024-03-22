@@ -19,4 +19,5 @@ public class ProductDto {
     private Integer stock;
     private String imagePath;
     private Category category;
+    private Integer quantity;
 }

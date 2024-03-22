@@ -38,4 +38,9 @@ public class CartDto {
         }
         this.total -= productPrice;
     }
+
+    public void emptyCart() {
+        this.items.clear();
+        this.total = 0L;
+    }
 }

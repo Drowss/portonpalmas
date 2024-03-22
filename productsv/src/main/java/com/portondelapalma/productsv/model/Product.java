@@ -30,6 +30,7 @@ public class Product {
 
     public ProductDto toDto() {
         return ProductDto.builder()
+                .idProduct(idProduct)
                 .nameProduct(nameProduct)
                 .description(description)
                 .price(price)

@@ -58,6 +58,7 @@ services:
       - "8082:8082"
     environment:
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - secretKey=${secretKey}
 
   user-app:
     container_name: user-app
