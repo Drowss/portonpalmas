@@ -78,7 +78,7 @@ The gateway is exposed on port `443`
 | `cart/v1/delete-product?nameProduct=(name)` | PUT         | Endpoint for getting cart from the cookie, it removes item from the cart | `{}`                                                                                                                                                                                                                                                                  |
 
 # Sale Service
-| Endpoint            | HTTP Method | Description                                                                                                       | Request Body | Response Body                                                                                                   |
-|---------------------|-------------|-------------------------------------------------------------------------------------------------------------------|-------------|-----------------------------------------------------------------------------------------------------------------|
-| `sale/v1/succesful` | POST        | Endpoint for buying products taking the cart from the cookie and update stock on the products that have been sold | `{}`        | `{`<br/>`date: date,`<br/>`total: total`<br/>`email: email,`<br/>`dni: dni,`<br/>`products: [products]`<br/>`}` |
+| Endpoint             | HTTP Method | Description                                                                                                       | Request Body | Response Body                                                                                                   |
+|----------------------|-------------|-------------------------------------------------------------------------------------------------------------------|-------------|-----------------------------------------------------------------------------------------------------------------|
+| `sale/v1/successful` | POST        | Endpoint for buying products taking the cart from the cookie and update stock on the products that have been sold | `{}`        | `{`<br/>`date: date,`<br/>`total: total`<br/>`email: email,`<br/>`dni: dni,`<br/>`products: [products]`<br/>`}` |
 
