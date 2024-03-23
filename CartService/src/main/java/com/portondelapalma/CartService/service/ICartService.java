@@ -6,9 +6,10 @@ import jakarta.servlet.http.HttpServletRequest;
 
 public interface ICartService {
     Long createCart(Cart cart);
-    CartDto findCart(Long idcart);
+    CartDto findCart(Long idCart);
 
     void addProductCookie(Long idProduct, HttpServletRequest request);
     void deleteProductCookie(String name, HttpServletRequest request);
     void emptyCart(String token);
+    CartDto getCartFromCookie(HttpServletRequest request);
 }

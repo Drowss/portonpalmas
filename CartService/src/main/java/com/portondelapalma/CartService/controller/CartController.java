@@ -34,6 +34,12 @@ public class CartController {
         return iCartService.findCart(idCart);
     }
 
+    @GetMapping("my-cart")
+    public CartDto myCart(HttpServletRequest request) {
+        return iCartService.getCartFromCookie(request);
+    }
+
+
     @PutMapping("/empty-cart")
     public void emptyCart(@RequestParam String token) {
         iCartService.emptyCart(token);

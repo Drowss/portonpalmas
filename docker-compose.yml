@@ -8,6 +8,7 @@ services:
       - "8888:8888"
     environment:
       - gitpassword=${gitpassword}
+    restart: always
 
   java_db:
     container_name: java_db
@@ -19,12 +20,14 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
+    restart: always
 
   eureka-app:
     container_name: eureka-app
     build: eureka-sv
     ports:
       - "8761:8761"
+    restart: always
 
   horse-app:
     container_name: horse-app
@@ -38,6 +41,7 @@ services:
       - HORSES_BUCKETNAME=${HORSES_BUCKETNAME}
       - region=${region}
       - gitpassword=${gitpassword}
+    restart: always
 
   product-app:
     container_name: product-app
@@ -50,6 +54,7 @@ services:
       - secret=${secret}
       - PRODUCTS_BUCKETNAME=${PRODUCTS_BUCKETNAME}
       - region=${region}
+    restart: always
 
   cart-app:
     container_name: cart-app
@@ -59,6 +64,7 @@ services:
     environment:
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - secretKey=${secretKey}
+    restart: always
 
   user-app:
     container_name: user-app
@@ -69,6 +75,7 @@ services:
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - secretKey=${secretKey}
       - expiration=${expiration}
+    restart: always
 
   sale-app:
     container_name: sale-app
@@ -79,6 +86,7 @@ services:
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - secretKey=${secretKey}
       - expiration=${expiration}
+    restart: always
 
   api-gateway-app:
     container_name: api-gateway-app
@@ -88,3 +96,4 @@ services:
     environment:
       - expiration=${expiration}
       - secretKey=${secretKey}
+    restart: always

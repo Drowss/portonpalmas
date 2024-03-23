@@ -48,20 +48,7 @@ public class CartService implements ICartService {
     }
 
     public void addProductCookie(Long idProduct, HttpServletRequest request) {
-        Cookie[] cookieArray = request.getCookies();
-        if (cookieArray == null) {
-            throw new RuntimeException("Cookies not found");
-        }
-        List<Cookie> cookies = List.of(cookieArray);
-        String token = cookies.stream()
-                .filter(cookie -> cookie.getName().equals("token"))
-                .findFirst()
-                .map(Cookie::getValue)
-                .orElseThrow(() -> new RuntimeException("Token not found"));
-        if (jwtUtils.isExpired(token)) {
-            throw new RuntimeException("Token expired");
-        }
-        CartDto cart = findCart(jwtUtils.getCartFromToken(token));
+        CartDto cart = getCartFromCookie(request);
         ProductDto productDto = iProductAPI.getProductById(idProduct);
         cart.addProductToCart(productDto.getNameProduct(), productDto.getPrice());
         this.createCart(cart.toEntity());
@@ -69,20 +56,7 @@ public class CartService implements ICartService {
     }
 
     public void deleteProductCookie(String nameProduct, HttpServletRequest request) {
-        Cookie[] cookieArray = request.getCookies();
-        if (cookieArray == null) {
-            throw new RuntimeException("Cookies not found");
-        }
-        List<Cookie> cookies = List.of(cookieArray);
-        String token = cookies.stream()
-                .filter(cookie -> cookie.getName().equals("token"))
-                .findFirst()
-                .map(Cookie::getValue)
-                .orElseThrow(() -> new RuntimeException("Token not found"));
-        if (jwtUtils.isExpired(token)) {
-            throw new RuntimeException("Token expired");
-        }
-        CartDto cart = findCart(jwtUtils.getCartFromToken(token));
+        CartDto cart = getCartFromCookie(request);
         ProductDto productDto = iProductAPI.getProductByName(nameProduct);
         cart.deleteProductFromCart(productDto.getNameProduct(), productDto.getPrice());
         this.createCart(cart.toEntity());
@@ -97,5 +71,23 @@ public class CartService implements ICartService {
         cart.emptyCart();
         this.createCart(cart.toEntity());
         logger.info("Cart emptied");
+    }
+
+    @Override
+    public CartDto getCartFromCookie(HttpServletRequest request) {
+        Cookie[] cookieArray = request.getCookies();
+        if (cookieArray == null) {
+            throw new RuntimeException("Cookies not found");
+        }
+        List<Cookie> cookies = List.of(cookieArray);
+        String token = cookies.stream()
+                .filter(cookie -> cookie.getName().equals("token"))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElseThrow(() -> new RuntimeException("Token not found"));
+        if (jwtUtils.isExpired(token)) {
+            throw new RuntimeException("Token expired");
+        }
+        return findCart(jwtUtils.getCartFromToken(token));
     }
 }
