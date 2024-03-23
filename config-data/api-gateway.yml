@@ -12,6 +12,17 @@ spring.cloud.gateway:
     locator:
       enabled: true
       lower-case-service-id: true
+  globalcors:
+    corsConfigurations:
+      '[/**]':
+        allowedOrigins: "*"
+        allowedMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+        allowedHeaders:
+          - "*"
 api-gateway:
   logging:
     level:

@@ -27,3 +27,4 @@ logging:
           InstanceMetadataServiceResourceFetcher: error
         util:
           EC2MetadataUtils: error
+secretKey: ${secretKey}
