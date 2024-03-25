@@ -41,6 +41,7 @@ services:
       - HORSES_BUCKETNAME=${HORSES_BUCKETNAME}
       - region=${region}
       - gitpassword=${gitpassword}
+      - SPRING_PROFILES_ACTIVE=8080
     restart: always
 
   horse-app2:
@@ -55,6 +56,7 @@ services:
       - HORSES_BUCKETNAME=${HORSES_BUCKETNAME}
       - region=${region}
       - gitpassword=${gitpassword}
+      - SPRING_PROFILES_ACTIVE=8090
     restart: always
 
   product-app:
