@@ -43,6 +43,20 @@ services:
       - gitpassword=${gitpassword}
     restart: always
 
+  horse-app2:
+    container_name: horse-app2
+    build: horse-sv
+    ports:
+      - "8090:8090"
+    environment:
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - access=${access}
+      - secret=${secret}
+      - HORSES_BUCKETNAME=${HORSES_BUCKETNAME}
+      - region=${region}
+      - gitpassword=${gitpassword}
+    restart: always
+
   product-app:
     container_name: product-app
     build: productsv

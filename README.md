@@ -48,6 +48,8 @@ Follow these steps to run the application:
 # Testing
 I recommend using `Postman` to test the endpoints.
 
+
+
 The gateway is exposed on port `443`
 
 #### These endpoints are the essencial ones, there are more endpoints that are not listed here, but you can find them in the code.
