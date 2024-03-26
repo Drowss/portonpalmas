@@ -25,6 +25,7 @@ public class S3Service implements IFileService {
     public String saveFile(MultipartFile file) {
         UUID uuid = UUID.randomUUID();
         String originalFilename = uuid.toString() + "_" + file.getOriginalFilename();
+
         try {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(file.getSize());

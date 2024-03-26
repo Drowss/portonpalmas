@@ -19,6 +19,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 public class ProductService implements IProductService {
@@ -29,11 +30,16 @@ public class ProductService implements IProductService {
     @Autowired
     private S3Service s3;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
     private final Logger logger = LoggerFactory.getLogger(ProductService.class);
 
     @Override
     public ProductDto createProduct(MultipartFile multipartFile, String productJson) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
         ProductDto productDto = objectMapper.readValue(productJson, ProductDto.class);
         String imagePath = s3.saveFile(multipartFile);
         productDto.setImagePath(imagePath);
@@ -46,6 +52,7 @@ public class ProductService implements IProductService {
                 .stock(productDto.getStock())
                 .category(productDto.getCategory())
                 .build();
+
         iProductRepository.save(product);
         logger.info(productDto.getNameProduct() + " creado correctamente.");
         return productDto;
@@ -57,10 +64,12 @@ public class ProductService implements IProductService {
             logger.error("ID de producto inválido: " + idProduct);
             throw new IllegalArgumentException("ID de producto debe ser positivo: " + idProduct);
         }
+
         Product product = iProductRepository.findById(idProduct).orElseThrow(() -> {
             logger.error("No se pudo encontrar un producto con el ID: " + idProduct);
             return new NoSuchElementException("No se pudo encontrar un producto con el ID: " + idProduct);
         });
+
         deleteImage(product.getImagePath());
         iProductRepository.deleteById(idProduct);
         logger.info("Se ha eliminado la entidad correctamente");
@@ -72,14 +81,13 @@ public class ProductService implements IProductService {
         logger.info("Se han encontrado " + iProductRepository.findAll().size() + " productos");
         return iProductRepository.findAll()
                 .stream()
-                .map(Product::toDto)
+                .map(product -> modelMapper.map(product, ProductDto.class))
                 .toList();
     }
 
     @Override
     public List<ProductDto> getAllByCategory(String category) {
         Category categoryEnum = Category.valueOf(category.toUpperCase());
-        ModelMapper modelMapper = new ModelMapper();
         List<Product> products = iProductRepository.getAllByCategory(categoryEnum);
         logger.info("Se han encontrado " + products.size() + " productos de la categoría " + category);
         return products.stream()
@@ -91,30 +99,23 @@ public class ProductService implements IProductService {
     public Product putProduct(Long id, MultipartFile multipartFile, String productJson) throws URISyntaxException, JsonProcessingException {
         Product product = iProductRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("El producto no fue encontrado " + id));
+
         if (productJson != null) {
-            ObjectMapper mapper = new ObjectMapper();
-            ProductDto productDto = mapper.readValue(productJson, ProductDto.class);
-            if (productDto.getNameProduct() != null) {
-                product.setNameProduct(productDto.getNameProduct());
-            }
-            if (productDto.getPrice() != null) {
-                product.setPrice(productDto.getPrice());
-            }
-            if (productDto.getDescription() != null) {
-                product.setDescription(productDto.getDescription());
-            }
-            if (productDto.getStock() != null) {
-                product.setStock(productDto.getStock());
-            }
-            if (productDto.getCategory() != null) {
-                product.setCategory(productDto.getCategory());
-            }
+            ProductDto productDto = objectMapper.readValue(productJson, ProductDto.class);
+
+            Optional.ofNullable(productDto.getNameProduct()).ifPresent(product::setNameProduct);
+            Optional.ofNullable(productDto.getPrice()).ifPresent(product::setPrice);
+            Optional.ofNullable(productDto.getDescription()).ifPresent(product::setDescription);
+            Optional.ofNullable(productDto.getStock()).ifPresent(product::setStock);
+            Optional.ofNullable(productDto.getCategory()).ifPresent(product::setCategory);
         }
+
         if (multipartFile != null) {
             String imagePath = s3.saveFile(multipartFile);
             deleteImage(product.getImagePath());
             product.setImagePath(imagePath);
         }
+
         logger.info("Producto actualizado correctamente");
         return iProductRepository.save(product);
     }
@@ -147,6 +148,7 @@ public class ProductService implements IProductService {
             logger.error("No se pudo encontrar un producto con el ID: " + idProduct);
             return new NoSuchElementException("No se pudo encontrar un producto con el ID: " + idProduct);
         });
+
         product.setStock(stock);
         iProductRepository.save(product);
         logger.info("Stock modificado correctamente");
