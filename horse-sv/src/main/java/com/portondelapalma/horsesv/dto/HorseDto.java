@@ -15,6 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class HorseDto {
 
+    private Long idHorse;
     private String breed;
     private String description;
     private Long price;
