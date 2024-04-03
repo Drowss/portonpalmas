@@ -68,7 +68,7 @@ public class UserdataService {
         cookie.setPath("/");
         cookie.setMaxAge((int) Duration.ofMinutes(1440L).toSeconds()); // 1 dia
         response.addCookie(cookie);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(token);
     }
 
     public ResponseEntity<?> logout(HttpServletResponse response) {
