@@ -23,6 +23,7 @@ spring.cloud.gateway:
           - DELETE
         allowedHeaders:
           - "*"
+        allowCredentials: true
 api-gateway:
   logging:
     level:
