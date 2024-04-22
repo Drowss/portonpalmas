@@ -21,3 +21,5 @@ eureka:
       defaultZone: http://eureka-app:8761/eureka
 secretKey: ${secretKey}
 expiration: ${expiration}
+email: ${email}
+emailpassword: ${emailpassword}
