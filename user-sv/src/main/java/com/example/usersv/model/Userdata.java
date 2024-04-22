@@ -11,6 +11,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -39,4 +41,6 @@ public class Userdata {
     private String dni;
     private String role;
     private Long idCart;
+    private String resetToken;
+    private LocalDate expDateResetToken;
 }

@@ -91,6 +91,8 @@ services:
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - secretKey=${secretKey}
       - expiration=${expiration}
+      - email=${email}
+      - emailpassword=${emailpassword}
     restart: always
 
   sale-app:

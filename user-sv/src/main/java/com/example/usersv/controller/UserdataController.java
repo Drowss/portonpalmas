@@ -1,6 +1,7 @@
 package com.example.usersv.controller;
 
 import com.example.usersv.dto.UserdataDto;
+import com.example.usersv.entity.EmailRequest;
 import com.example.usersv.entity.UserLoginRequest;
 import com.example.usersv.model.Userdata;
 import com.example.usersv.service.UserdataService;
@@ -30,5 +31,10 @@ public class UserdataController {
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) {
         return userdataService.logout(response);
+    }
+
+    @PostMapping
+    public ResponseEntity<?> forgotPassword(@RequestBody EmailRequest emailRequest) {
+        return userdataService.forgotPassword(emailRequest);
     }
 }
