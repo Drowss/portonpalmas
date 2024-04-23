@@ -2,6 +2,7 @@ package com.example.usersv.controller;
 
 import com.example.usersv.dto.UserdataDto;
 import com.example.usersv.entity.EmailRequest;
+import com.example.usersv.entity.NewPasswordRequest;
 import com.example.usersv.entity.UserLoginRequest;
 import com.example.usersv.model.Userdata;
 import com.example.usersv.service.UserdataService;
@@ -33,8 +34,13 @@ public class UserdataController {
         return userdataService.logout(response);
     }
 
-    @PostMapping
+    @PostMapping("forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody EmailRequest emailRequest) {
         return userdataService.forgotPassword(emailRequest);
+    }
+
+    @PutMapping("reset-password")
+    public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestBody NewPasswordRequest newPasswordRequest) {
+        return userdataService.resetPassword(token, newPasswordRequest);
     }
 }

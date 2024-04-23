@@ -3,6 +3,7 @@ package com.example.usersv.service;
 import com.example.usersv.dto.CartDto;
 import com.example.usersv.dto.UserdataDto;
 import com.example.usersv.entity.EmailRequest;
+import com.example.usersv.entity.NewPasswordRequest;
 import com.example.usersv.entity.UserLoginRequest;
 import com.example.usersv.jwt.JwtUtils;
 import com.example.usersv.model.Userdata;
@@ -160,5 +161,23 @@ public class UserdataService {
         }
 
         return ResponseEntity.ok("Password reset email sent");
+    }
+
+    public ResponseEntity<?> resetPassword(String token, NewPasswordRequest newPasswordRequest) {
+        Userdata user = iUserdataRepository.findUserdataByResetToken(token);
+        if (user == null) {
+            return ResponseEntity.badRequest().body("Invalid token");
+        }
+
+        if (java.time.LocalDate.now().isAfter(user.getExpDateResetToken())) {
+            return ResponseEntity.badRequest().body("Token expired");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPasswordRequest.getNewPassword()));
+        user.setResetToken(null);
+        user.setExpDateResetToken(null);
+        iUserdataRepository.save(user);
+        return ResponseEntity.ok("Password reset successfully");
+
     }
 }

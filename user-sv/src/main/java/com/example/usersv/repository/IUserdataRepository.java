@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 public interface IUserdataRepository extends JpaRepository<Userdata, String> {
 
     Userdata findUserdataByEmail(String email);
+
+    Userdata findUserdataByResetToken(String token);
 }
