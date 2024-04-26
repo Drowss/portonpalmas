@@ -12,6 +12,7 @@ import com.example.usersv.repository.IUserdataRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -107,8 +109,40 @@ public class UserdataService {
 
     }
 
-    public List<Userdata> getAllUserdata() {
-        return iUserdataRepository.findAll();
+    public List<UserdataDto> getAllUserdata() {
+        return iUserdataRepository.findAll().stream().map(userdata -> modelMapper.map(userdata, UserdataDto.class)).toList();
+    }
+
+    public UserdataDto putUserdata(HttpServletRequest request, Userdata userdata) {
+
+        if (request.getCookies() == null) {
+            throw new RuntimeException("No token found");
+        }
+
+        List<Cookie> list = List.of(request.getCookies());
+
+        String token = list.stream()
+                .filter(cookie -> cookie.getName().equals("token"))
+                .findFirst().get().getValue();
+
+        if (jwtUtils.isExpired(token)) {
+            throw new RuntimeException("Token expired");
+        }
+
+        Userdata user = iUserdataRepository.findById(jwtUtils.getUserEmailFromRequest(token)).orElseThrow(() -> {
+            logger.error("Usuario no encontrado");
+            return new UsernameNotFoundException("User not found");
+        });
+
+        Optional.ofNullable(userdata.getName()).ifPresent(user::setName);
+        Optional.ofNullable(userdata.getAddress()).ifPresent(user::setAddress);
+        Optional.ofNullable(userdata.getCellphone()).ifPresent(user::setCellphone);
+        Optional.ofNullable(userdata.getDni()).ifPresent(user::setDni);
+        Optional.ofNullable(userdata.getPassword()).ifPresent(password -> user.setPassword(passwordEncoder.encode(password)));
+        Optional.ofNullable(userdata.getEmail()).ifPresent(user::setEmail);
+        iUserdataRepository.save(user);
+
+        return modelMapper.map(user, UserdataDto.class);
     }
 
 
@@ -134,7 +168,7 @@ public class UserdataService {
                     + "<div style='background-color: #ffffff; border-radius: 10px; padding: 20px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);'>"
                     + "<h1 style='color: #f44336; margin-top: 0;'>Porton Palmas</h1>"
                     + "<p>Para restablecer tu contraseña, haz clic en el siguiente enlace:</p>"
-                    + "<a href='http://localhost:8080/reset-password?token=" + token + "' style='display: inline-block; font-weight: bold; background-color: #4CAF50; color: white; padding: 10px 20px; margin: 20px 0; text-decoration: none; border-radius: 5px;'>Restablecer contraseña</a>"
+                    + "<a href='http://localhost:4200/reset-password?token=" + token + "' style='display: inline-block; font-weight: bold; background-color: #4CAF50; color: white; padding: 10px 20px; margin: 20px 0; text-decoration: none; border-radius: 5px;'>Restablecer contraseña</a>"
                     + "<p style='color: #888888;'>Si no solicitaste un restablecimiento de contraseña, ignora este correo electrónico.</p>"
                     + "</div>"
                     + "</div>"
@@ -146,7 +180,7 @@ public class UserdataService {
             // Envía el correo electrónico
             Userdata userForgotten = iUserdataRepository.findById(emailRequest.getEmail()).orElseThrow(() -> {
                 logger.error("Usuario no encontrado");
-                return new UsernameNotFoundException("Usuario no encontrado");
+                return new UsernameNotFoundException("User not found");
             });
             mailSender.send(mail);
             logger.info("email enviado");
@@ -157,7 +191,7 @@ public class UserdataService {
 
         } catch (MessagingException e) {
             logger.error("error al enviar el email");
-            return ResponseEntity.badRequest().body("Error al enviar el email");
+            return ResponseEntity.badRequest().body("Error while sending email");
         }
 
         return ResponseEntity.ok("Password reset email sent");
