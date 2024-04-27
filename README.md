@@ -30,6 +30,8 @@ region=your_region
 gitpassword=your_git_token
 expiration=your_expiration_time
 secretKey=your_secret_key
+email=your_email
+emailpassword=your_email_app_password
 ```
 
 # How to Run
