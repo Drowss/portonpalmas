@@ -67,7 +67,7 @@ public class UserdataService {
         entityManager.createNativeQuery("INSERT INTO userdata (email, name, password, city, region, street_type, street_number, local_apto_number, postal_code, cellphone, dni, role, id_cart) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
                 .setParameter(1, userdata.getEmail())
                 .setParameter(2, userdata.getName())
-                .setParameter(3, userdata.getPassword())
+                .setParameter(3, passwordEncoder.encode(userdata.getPassword()))
                 .setParameter(4, userdata.getCity())
                 .setParameter(5, userdata.getRegion())
                 .setParameter(6, userdata.getStreetType())

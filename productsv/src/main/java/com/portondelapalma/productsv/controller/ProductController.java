@@ -23,8 +23,8 @@ public class ProductController {
     private IProductService iProductService;
 
     @GetMapping() //Endpoint para cliente
-    public List<ProductDto> getAllProducts() {
-        return iProductService.getAllProducts();
+    public List<Product> getAllProducts() {
+        return iProductService.findAllProductORM();
     }
 
     @GetMapping("/search") //Endpoint para cliente
@@ -33,19 +33,19 @@ public class ProductController {
     }
 
     @PostMapping("/upload") //Endpoint para admin
-    public ProductDto upload(@RequestPart("file") MultipartFile file, @Valid @RequestPart("product") String productJson) throws JsonProcessingException {
-        return iProductService.createProduct(file, productJson);
+    public void upload(@RequestPart("file") MultipartFile file, @Valid @RequestPart("product") String productJson) throws JsonProcessingException {
+        iProductService.saveProductORM(file, productJson);
     }
 
     @DeleteMapping("/delete/{idProduct}") //Endpoint para admin
-    public ResponseEntity<String> deleteProduct(@PathVariable Long idProduct) throws MalformedURLException, URISyntaxException {
-        return iProductService.deleteProduct(idProduct);
+    public void deleteProduct(@PathVariable Long idProduct) throws MalformedURLException, URISyntaxException {
+        iProductService.deleteProductORM(idProduct);
     }
 
     @PutMapping(value = "/put/{idProduct}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) //Endpoint para admin
-    public Product putProduct(@PathVariable("idProduct") Long idProduct, @RequestPart(value = "file", required = false) MultipartFile file,
+    public void putProduct(@PathVariable("idProduct") Long idProduct, @RequestPart(value = "file", required = false) MultipartFile file,
                             @RequestPart(value = "product", required = false) String productJson) throws JsonProcessingException, URISyntaxException {
-        return iProductService.putProduct(idProduct, file, productJson);
+        iProductService.updateProductORM(idProduct, file, productJson);
     }
 
     @PutMapping("/modify-stock") //Endpoint consumido por cart

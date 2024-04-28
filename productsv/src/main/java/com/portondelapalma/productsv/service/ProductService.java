@@ -6,6 +6,8 @@ import com.portondelapalma.productsv.dto.ProductDto;
 import com.portondelapalma.productsv.model.Category;
 import com.portondelapalma.productsv.model.Product;
 import com.portondelapalma.productsv.repository.IProductRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +38,82 @@ public class ProductService implements IProductService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private EntityManager entityManager;
+
     private final Logger logger = LoggerFactory.getLogger(ProductService.class);
+
+    @Transactional
+    public void saveProductORM(MultipartFile file, String productJson) throws JsonProcessingException {
+        ProductDto productDto = objectMapper.readValue(productJson, ProductDto.class);
+        String imagePath = s3.saveFile(file);
+        productDto.setImagePath(imagePath);
+        entityManager.createNativeQuery("INSERT INTO Product (name_product, description, price, stock, image_path, category) VALUES (?, ?, ?, ?, ?, ?)")
+                .setParameter(1, productDto.getNameProduct())
+                .setParameter(2, productDto.getDescription())
+                .setParameter(3, productDto.getPrice())
+                .setParameter(4, productDto.getStock())
+                .setParameter(5, productDto.getImagePath())
+                .setParameter(6, productDto.getCategory())
+                .executeUpdate();
+    }
+
+    @Transactional
+    public void updateProductORM(Long idProduct, MultipartFile file, String productJson) throws JsonProcessingException, URISyntaxException {
+
+        Product product = (Product) entityManager.createNativeQuery("SELECT * FROM product WHERE id_product = ?", Product.class)
+                .setParameter(1, idProduct)
+                .getSingleResult();
+
+        if (productJson != null) {
+            Product productDto = objectMapper.readValue(productJson, Product.class);
+
+            Optional.ofNullable(productDto.getNameProduct()).ifPresent(product::setNameProduct);
+            Optional.ofNullable(productDto.getPrice()).ifPresent(product::setPrice);
+            Optional.ofNullable(productDto.getDescription()).ifPresent(product::setDescription);
+            Optional.ofNullable(productDto.getStock()).ifPresent(product::setStock);
+            Optional.ofNullable(productDto.getCategory()).ifPresent(product::setCategory);
+            entityManager.createNativeQuery("UPDATE product SET name_product = ?, description = ?, price = ?, stock = ?, image_path = ?, category = ? WHERE id_product = ?")
+                    .setParameter(1, product.getNameProduct())
+                    .setParameter(2, product.getDescription())
+                    .setParameter(3, product.getPrice())
+                    .setParameter(4, product.getStock())
+                    .setParameter(5, product.getImagePath())
+                    .setParameter(6, product.getCategory())
+                    .setParameter(7, idProduct)
+                    .executeUpdate();
+
+
+        }
+
+        if (file != null) {
+            String imagePath = s3.saveFile(file);
+            deleteImage(product.getImagePath());
+            entityManager.createNativeQuery("UPDATE product SET image_path = ? WHERE id_product = ?")
+                    .setParameter(1, imagePath)
+                    .setParameter(2, idProduct)
+                    .executeUpdate();
+        }
+    }
+
+    @Override
+    public Product findProductByIdProductQuery(Long idProduct) {
+        return (Product) entityManager.createNativeQuery("SELECT * FROM product WHERE id_product = ?", Product.class)
+                .setParameter(1, idProduct)
+                .getSingleResult();
+    }
+
+    @Transactional
+    public void deleteProductORM(Long idProduct) {
+        entityManager.createNativeQuery("DELETE FROM product WHERE id_product = ?")
+                .setParameter(1, idProduct)
+                .executeUpdate();
+    }
+
+    @Transactional
+    public List<Product> findAllProductORM() {
+        return entityManager.createNativeQuery("SELECT * FROM product", Product.class).getResultList();
+    }
 
     @Override
     public ProductDto createProduct(MultipartFile multipartFile, String productJson) throws JsonProcessingException {

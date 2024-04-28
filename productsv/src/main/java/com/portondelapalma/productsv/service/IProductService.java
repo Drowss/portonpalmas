@@ -21,4 +21,14 @@ public interface IProductService {
 
     ProductDto getByName(String nameProduct);
     void modifyStock(Long idProduct, Integer stock);
+
+    Product findProductByIdProductQuery(Long idProduct);
+
+    void saveProductORM(MultipartFile file,String productJson) throws JsonProcessingException;
+
+    void updateProductORM(Long idProduct, MultipartFile file, String productJson) throws JsonProcessingException, URISyntaxException;
+
+    void deleteProductORM(Long idProduct);
+
+    List<Product> findAllProductORM();
 }
