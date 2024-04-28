@@ -22,29 +22,35 @@ public class UserdataController {
     @Autowired
     private UserdataService userdataService;
 
+    @PostMapping("/register")
+    public void register(@Valid @RequestBody Userdata userdata) {
+        userdataService.insertWithQuery(userdata);
+    }
+
+    @GetMapping
+    public List<Userdata> getAllUserdata() {
+        return userdataService.selectWithQuery();
+    }
+
+    @PutMapping("/put")
+    public void putUserdata(@RequestBody Userdata userdata) {
+        userdataService.updateWithQuery(userdata);
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteUserdata(@RequestBody EmailRequest emailRequest) {
+        userdataService.deleteWithQuery(emailRequest.getEmail());
+        return null;
+    }
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserLoginRequest loginRequest, HttpServletResponse response) {
         return userdataService.loginUser(loginRequest, response);
     }
 
-    @PostMapping("/register")
-    public UserdataDto register(@Valid @RequestBody Userdata userdata) {
-        return userdataService.saveUserdata(userdata);
-    }
-
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) {
         return userdataService.logout(response);
-    }
-
-    @GetMapping
-    public List<UserdataDto> getAllUserdata() {
-        return userdataService.getAllUserdata();
-    }
-
-    @PutMapping("/put")
-    public UserdataDto putUserdata(HttpServletRequest request, @RequestBody Userdata userdata) {
-        return userdataService.putUserdata(request, userdata);
     }
 
     @PostMapping("/forgot-password")

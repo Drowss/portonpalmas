@@ -11,9 +11,12 @@ import com.example.usersv.repository.ICartAPI;
 import com.example.usersv.repository.IUserdataRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +56,82 @@ public class UserdataService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @PersistenceContext
+    EntityManager entityManager;
+
     private static final Logger logger = LoggerFactory.getLogger(UserdataService.class);
+
+    @Transactional
+    public void insertWithQuery(Userdata userdata) {
+        userdata.setIdCart(iCartAPI.createCart(CartDto.builder().items(new HashMap<>()).total(0L).build()));
+        entityManager.createNativeQuery("INSERT INTO userdata (email, name, password, city, region, street_type, street_number, local_apto_number, postal_code, cellphone, dni, role, id_cart) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+                .setParameter(1, userdata.getEmail())
+                .setParameter(2, userdata.getName())
+                .setParameter(3, userdata.getPassword())
+                .setParameter(4, userdata.getCity())
+                .setParameter(5, userdata.getRegion())
+                .setParameter(6, userdata.getStreetType())
+                .setParameter(7, userdata.getStreetNumber())
+                .setParameter(8, userdata.getLocalAptoNumber())
+                .setParameter(9, userdata.getPostalCode())
+                .setParameter(10, userdata.getCellphone())
+                .setParameter(11, userdata.getDni())
+                .setParameter(12, userdata.getRole())
+                .setParameter(13, userdata.getIdCart())
+                .executeUpdate();
+    }
+
+    @Transactional
+    public void deleteWithQuery(String email) {
+        entityManager.createNativeQuery("DELETE FROM userdata WHERE email = ?")
+                .setParameter(1, email)
+                .executeUpdate();
+    }
+
+    @Transactional
+    public void updateWithQuery(Userdata userdata) {
+        Userdata user = this.findUserdataByEmailQuery(userdata.getEmail());
+        Optional.ofNullable(userdata.getName()).ifPresent(user::setName);
+        Optional.ofNullable(userdata.getPassword()).ifPresent(password -> user.setPassword(passwordEncoder.encode(password)));
+        Optional.ofNullable(userdata.getCity()).ifPresent(user::setCity);
+        Optional.ofNullable(userdata.getRegion()).ifPresent(user::setRegion);
+        Optional.ofNullable(userdata.getStreetType()).ifPresent(user::setStreetType);
+        Optional.ofNullable(userdata.getStreetNumber()).ifPresent(user::setStreetNumber);
+        Optional.ofNullable(userdata.getLocalAptoNumber()).ifPresent(user::setLocalAptoNumber);
+        Optional.ofNullable(userdata.getPostalCode()).ifPresent(user::setPostalCode);
+        Optional.ofNullable(userdata.getCellphone()).ifPresent(user::setCellphone);
+        Optional.ofNullable(userdata.getDni()).ifPresent(user::setDni);
+        Optional.ofNullable(userdata.getRole()).ifPresent(user::setRole);
+        Optional.ofNullable(userdata.getIdCart()).ifPresent(user::setIdCart);
+
+        entityManager.createNativeQuery("UPDATE userdata SET name = ?, password = ?, city = ?, region = ?, street_type = ?, street_number = ?, local_apto_number = ?, postal_code = ?, cellphone = ?, dni = ?, role = ?, id_cart = ? WHERE email = ?")
+                .setParameter(1, user.getName())
+                .setParameter(2, user.getPassword())
+                .setParameter(3, user.getCity())
+                .setParameter(4, user.getRegion())
+                .setParameter(5, user.getStreetType())
+                .setParameter(6, user.getStreetNumber())
+                .setParameter(7, user.getLocalAptoNumber())
+                .setParameter(8, user.getPostalCode())
+                .setParameter(9, user.getCellphone())
+                .setParameter(10, user.getDni())
+                .setParameter(11, user.getRole())
+                .setParameter(12, user.getIdCart())
+                .setParameter(13, user.getEmail())
+                .executeUpdate();
+    }
+
+    @Transactional
+    public List<Userdata> selectWithQuery() {
+        return entityManager.createNativeQuery("SELECT * FROM userdata", Userdata.class).getResultList();
+    }
+
+    @Transactional
+    public Userdata findUserdataByEmailQuery(String email) {
+        return (Userdata) entityManager.createNativeQuery("SELECT * FROM userdata WHERE email = ?", Userdata.class)
+                .setParameter(1, email)
+                .getSingleResult();
+    }
 
     public UserdataDto saveUserdata(Userdata userdata) {
         userdata.setRole("USER");
@@ -102,15 +180,13 @@ public class UserdataService {
     }
 
     public void deleteUserdata(String email) {
-        iUserdataRepository.deleteById(email);
-    }
-
-    public void updateUserdata(Userdata userdata) {
-
+        iUserdataRepository.deleteUserdataORM(email);
     }
 
     public List<UserdataDto> getAllUserdata() {
-        return iUserdataRepository.findAll().stream().map(userdata -> modelMapper.map(userdata, UserdataDto.class)).toList();
+        return iUserdataRepository.findAllUserdataORM().stream()
+                .map(userdata ->
+                        modelMapper.map(userdata, UserdataDto.class)).toList();
     }
 
     public UserdataDto putUserdata(HttpServletRequest request, Userdata userdata) {
@@ -135,7 +211,6 @@ public class UserdataService {
         });
 
         Optional.ofNullable(userdata.getName()).ifPresent(user::setName);
-        Optional.ofNullable(userdata.getAddress()).ifPresent(user::setAddress);
         Optional.ofNullable(userdata.getCellphone()).ifPresent(user::setCellphone);
         Optional.ofNullable(userdata.getDni()).ifPresent(user::setDni);
         Optional.ofNullable(userdata.getPassword()).ifPresent(password -> user.setPassword(passwordEncoder.encode(password)));

@@ -1,5 +1,6 @@
 package com.example.usersv.configuration;
 
+import jakarta.persistence.EntityManager;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

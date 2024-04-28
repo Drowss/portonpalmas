@@ -30,9 +30,19 @@ public class Userdata {
 
     @NotBlank(message = "La contraseña es obligatoria")
     private String password;
+    @NotBlank(message = "La ciudad es obligatoria")
+    private String city;
+    @NotBlank(message = "La región es obligatoria")
+    private String region;
+    @NotBlank(message = "El tipo de vía")
+    private String streetType;
+    @NotBlank(message = "El número de la calle es obligatorio")
+    private String streetNumber;
+    @NotBlank(message = "El número del apartamento es obligatorio")
+    private String localAptoNumber;
+    @NotBlank(message = "El código postal es obligatorio")
+    private String postalCode;
 
-    @NotBlank(message = "La dirección es obligatoria")
-    private String address;
 
     @NotBlank(message = "El número de teléfono es obligatorio")
     private String cellphone;
