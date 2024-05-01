@@ -24,11 +24,11 @@ public interface IProductService {
 
     Product findProductByIdProductQuery(Long idProduct);
 
-    void saveProductORM(MultipartFile file,String productJson) throws JsonProcessingException;
+    void saveProductSQL(MultipartFile file,String productJson) throws JsonProcessingException;
 
-    void updateProductORM(Long idProduct, MultipartFile file, String productJson) throws JsonProcessingException, URISyntaxException;
+    void updateProductSQL(Long idProduct, MultipartFile file, String productJson) throws JsonProcessingException, URISyntaxException;
 
-    void deleteProductORM(Long idProduct);
+    void deleteProductSQL(Long idProduct);
 
-    List<Product> findAllProductORM();
+    List<Product> findAllProductSQL();
 }

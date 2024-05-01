@@ -16,4 +16,10 @@ public interface IHorseService {
     List<HorseDto> getAllHorses();
     List<HorseDto> getAllByBreed(String breed);
     Horse putHorse(Long id, MultipartFile multipartFile, String horseJson) throws URISyntaxException, JsonProcessingException;
+
+    Horse findHorseByIdHorseQuery(Long idHorse);
+    List<Horse> findAllHorsesSQL();
+    void saveHorseSQL(MultipartFile file,String horseJson) throws JsonProcessingException;
+    void updateHorseSQL(Long idHorse, MultipartFile file, String horseJson) throws JsonProcessingException, URISyntaxException;
+    void deleteHorseSQL(Long idHorse);
 }

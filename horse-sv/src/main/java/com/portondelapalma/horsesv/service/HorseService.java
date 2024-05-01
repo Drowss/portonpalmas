@@ -8,6 +8,7 @@ import com.portondelapalma.horsesv.dto.HorseDto;
 import com.portondelapalma.horsesv.dto.HorseValidDto;
 import com.portondelapalma.horsesv.model.Horse;
 import com.portondelapalma.horsesv.repository.IHorseRepository;
+import jakarta.persistence.EntityManager;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,9 @@ public class HorseService implements IHorseService {
 
     @Autowired
     private ObjectMapper mapper;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Override
     public Horse createHorse(MultipartFile imageFile, String horseJson) throws JsonProcessingException {
@@ -116,6 +120,84 @@ public class HorseService implements IHorseService {
         }
 
         return iHorseRepository.save(horse);
+
+    }
+
+    @Override
+    public Horse findHorseByIdHorseQuery(Long idHorse) {
+        return (Horse) entityManager.createQuery("SELECT h FROM Horse h WHERE h.idHorse = :idHorse", Horse.class)
+                .setParameter("idHorse", idHorse)
+                .getSingleResult();
+    }
+
+    @Override
+    public List<Horse> findAllHorsesSQL() {
+        return entityManager.createQuery("SELECT h FROM Horse h", Horse.class).getResultList();
+    }
+
+    @Override
+    public void saveHorseSQL(MultipartFile file, String horseJson) throws JsonProcessingException {
+        HorseValidDto horseValidDto = mapper.readValue(horseJson, HorseValidDto.class);
+        String imagePath = s3Service.saveFile(file);
+
+        Horse horse = Horse.builder()
+                .imagePath(imagePath)
+                .breed(horseValidDto.getBreed())
+                .description(horseValidDto.getDescription())
+                .price(horseValidDto.getPrice())
+                .bornOn(horseValidDto.getBornOn())
+                .build();
+
+        entityManager.persist(horse);
+    }
+
+    @Override
+    public void updateHorseSQL(Long idHorse, MultipartFile file, String horseJson) throws JsonProcessingException, URISyntaxException {
+        Horse horse = (Horse) entityManager.createQuery("SELECT h FROM Horse h WHERE h.idHorse = :idHorse", Horse.class)
+                .setParameter("idHorse", idHorse)
+                .getSingleResult();
+
+        if (horseJson != null) {
+            mapper.registerModule(new JavaTimeModule());
+            HorseDto horseDto = mapper.readValue(horseJson, HorseDto.class);
+
+            Optional.ofNullable(horseDto.getBreed()).ifPresent(horse::setBreed);
+            Optional.ofNullable(horseDto.getPrice()).ifPresent(horse::setPrice);
+            Optional.ofNullable(horseDto.getDescription()).ifPresent(horse::setDescription);
+            Optional.ofNullable(horseDto.getBornOn()).ifPresent(horse::setBornOn);
+            entityManager.createNativeQuery("UPDATE Horse SET breed = ?, price = ?, description = ?, bornOn = ? WHERE idHorse = ?")
+                    .setParameter(1, horse.getBreed())
+                    .setParameter(2, horse.getPrice())
+                    .setParameter(3, horse.getDescription())
+                    .setParameter(4, horse.getBornOn())
+                    .setParameter(5, idHorse)
+                    .executeUpdate();
+        }
+
+        if (file != null) {
+            String imagePath = s3Service.saveFile(file);
+            URI uri = new URI(horse.getImagePath());
+            String path = uri.getPath();
+            s3Service.deleteFile(path.substring(path.lastIndexOf('/') + 1));
+            entityManager.createNativeQuery("UPDATE Horse SET imagePath = ? WHERE idHorse = ?")
+                    .setParameter(1, imagePath)
+                    .setParameter(2, idHorse)
+                    .executeUpdate();
+        }
+    }
+
+    @Override
+    public void deleteHorseSQL(Long idHorse) {
+        Horse horse = (Horse) entityManager.createQuery("SELECT h FROM Horse h WHERE h.idHorse = :idHorse", Horse.class)
+                .setParameter("idHorse", idHorse)
+                .getSingleResult();
+
+        URI uri = URI.create(horse.getImagePath());
+        String path = uri.getPath();
+        s3Service.deleteFile(path.substring(path.lastIndexOf('/') + 1));
+        entityManager.createNativeQuery("DELETE FROM Horse WHERE idHorse = ?")
+                .setParameter(1, idHorse)
+                .executeUpdate();
 
     }
 }

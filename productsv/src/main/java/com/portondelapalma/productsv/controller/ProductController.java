@@ -24,7 +24,7 @@ public class ProductController {
 
     @GetMapping() //Endpoint para cliente
     public List<Product> getAllProducts() {
-        return iProductService.findAllProductORM();
+        return iProductService.findAllProductSQL();
     }
 
     @GetMapping("/search") //Endpoint para cliente
@@ -34,18 +34,18 @@ public class ProductController {
 
     @PostMapping("/upload") //Endpoint para admin
     public void upload(@RequestPart("file") MultipartFile file, @Valid @RequestPart("product") String productJson) throws JsonProcessingException {
-        iProductService.saveProductORM(file, productJson);
+        iProductService.saveProductSQL(file, productJson);
     }
 
     @DeleteMapping("/delete/{idProduct}") //Endpoint para admin
     public void deleteProduct(@PathVariable Long idProduct) throws MalformedURLException, URISyntaxException {
-        iProductService.deleteProductORM(idProduct);
+        iProductService.deleteProductSQL(idProduct);
     }
 
     @PutMapping(value = "/put/{idProduct}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) //Endpoint para admin
     public void putProduct(@PathVariable("idProduct") Long idProduct, @RequestPart(value = "file", required = false) MultipartFile file,
                             @RequestPart(value = "product", required = false) String productJson) throws JsonProcessingException, URISyntaxException {
-        iProductService.updateProductORM(idProduct, file, productJson);
+        iProductService.updateProductSQL(idProduct, file, productJson);
     }
 
     @PutMapping("/modify-stock") //Endpoint consumido por cart
