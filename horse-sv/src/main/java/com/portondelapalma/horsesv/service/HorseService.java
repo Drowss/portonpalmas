@@ -148,7 +148,13 @@ public class HorseService implements IHorseService {
                 .bornOn(horseValidDto.getBornOn())
                 .build();
 
-        entityManager.persist(horse);
+        entityManager.createNativeQuery("INSERT INTO horse (image_path, breed, description, price, born_on) VALUES (?, ?, ?, ?, ?)")
+                .setParameter(1, horse.getImagePath())
+                .setParameter(2, horse.getBreed())
+                .setParameter(3, horse.getDescription())
+                .setParameter(4, horse.getPrice())
+                .setParameter(5, horse.getBornOn())
+                .executeUpdate();
     }
 
     @Override
@@ -165,7 +171,7 @@ public class HorseService implements IHorseService {
             Optional.ofNullable(horseDto.getPrice()).ifPresent(horse::setPrice);
             Optional.ofNullable(horseDto.getDescription()).ifPresent(horse::setDescription);
             Optional.ofNullable(horseDto.getBornOn()).ifPresent(horse::setBornOn);
-            entityManager.createNativeQuery("UPDATE Horse SET breed = ?, price = ?, description = ?, bornOn = ? WHERE idHorse = ?")
+            entityManager.createNativeQuery("UPDATE horse SET breed = ?, price = ?, description = ?, born_on = ? WHERE id_horse = ?")
                     .setParameter(1, horse.getBreed())
                     .setParameter(2, horse.getPrice())
                     .setParameter(3, horse.getDescription())
@@ -179,7 +185,7 @@ public class HorseService implements IHorseService {
             URI uri = new URI(horse.getImagePath());
             String path = uri.getPath();
             s3Service.deleteFile(path.substring(path.lastIndexOf('/') + 1));
-            entityManager.createNativeQuery("UPDATE Horse SET imagePath = ? WHERE idHorse = ?")
+            entityManager.createNativeQuery("UPDATE horse SET image_path = ? WHERE id_horse = ?")
                     .setParameter(1, imagePath)
                     .setParameter(2, idHorse)
                     .executeUpdate();
