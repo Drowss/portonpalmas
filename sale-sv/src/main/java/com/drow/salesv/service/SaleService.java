@@ -80,4 +80,18 @@ public class SaleService {
         return response;
 
     }
+
+    public List<Sale> history(HttpServletRequest request) {
+        if (request.getCookies() == null) {
+            throw new RuntimeException("No token found");
+        }
+        List<Cookie> list = List.of(request.getCookies());
+        String token = list.stream()
+                .filter(cookie -> cookie.getName().equals("token"))
+                .findFirst().get().getValue();
+        if (jwtUtils.isExpired(token)) {
+            throw new RuntimeException("Token expired");
+        }
+        return iSaleRepository.findAllByUserEmail(jwtUtils.getUserEmailFromRequest(token));
+    }
 }
