@@ -7,10 +7,16 @@ import com.drow.salesv.model.Sale;
 import com.drow.salesv.repository.ICartAPI;
 import com.drow.salesv.repository.IProductAPI;
 import com.drow.salesv.repository.ISaleRepository;
+import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
+import com.stripe.model.checkout.Session;
+import com.stripe.param.checkout.SessionCreateParams;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -30,68 +36,124 @@ public class SaleService {
     @Autowired
     private JwtUtils jwtUtils;
 
-    public Map<String, Object> successful(HttpServletRequest request) {
-        Map<String, Object> response = new HashMap<>();
+    @Value("${stripeSecretKey}")
+    private String stripeSecretKey;
+
+    public RedirectView successful(HttpServletRequest request) {
+        String token = getTokenFromRequest(request);
+        validateToken(token);
+        Long cartId = jwtUtils.getCartFromRequest(token);
+        CartDto cartDto = getCartDto(cartId);
+        List<ProductDto> products = getProductsFromCart(cartDto);
+        updateProductStocks(cartDto, products);
+        Long total = calculateTotal(products);
+        Sale sale = createSale(token, cartDto, total);
+        iSaleRepository.save(sale);
+        iCartAPI.emptyCart(token);
+        return new RedirectView("http://localhost:4200");
+    }
+
+    public List<Sale> history(HttpServletRequest request) {
+        String token = getTokenFromRequest(request);
+        validateToken(token);
+        return iSaleRepository.findAllByUserEmail(jwtUtils.getUserEmailFromRequest(token));
+    }
+
+    public RedirectView createCheckoutSession(HttpServletRequest request) throws StripeException {
+        Stripe.apiKey = stripeSecretKey;
+
+        String token = getTokenFromRequest(request);
+        validateToken(token);
+        Long cartId = jwtUtils.getCartFromRequest(token);
+        CartDto cartDto = getCartDto(cartId);
+        List<ProductDto> products = getProductsFromCart(cartDto);
+
+        String YOUR_DOMAIN = "http://localhost:443/sale/v1";
+        SessionCreateParams.Builder paramsBuilder = SessionCreateParams.builder()
+                .setMode(SessionCreateParams.Mode.PAYMENT)
+                .setSuccessUrl(YOUR_DOMAIN + "/done")
+                .setCancelUrl(YOUR_DOMAIN + "?canceled=true");
+        for (ProductDto product : products) {
+            paramsBuilder.addLineItem(
+                    SessionCreateParams.LineItem.builder()
+                            .setPriceData(
+                                    SessionCreateParams.LineItem.PriceData.builder()
+                                            .setCurrency("cop")
+                                            .setProductData(
+                                                    SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                                            .setName(product.getNameProduct())
+                                                            .setDescription(product.getDescription())
+                                                            .addImage(product.getImagePath())
+                                                            .build())
+                                            .setUnitAmount(product.getPrice() * 100)
+                                            .build())
+                            .setQuantity(Long.valueOf(product.getQuantity()))
+                            .build());
+        }
+        SessionCreateParams params = paramsBuilder.build();
+
+        Session session = Session.create(params);
+        System.out.println(session.getUrl());
+        return new RedirectView(session.getUrl());
+    }
+
+    private String getTokenFromRequest(HttpServletRequest request) {
         if (request.getCookies() == null) {
             throw new RuntimeException("No token found");
         }
         List<Cookie> list = List.of(request.getCookies());
-        String token = list.stream()
+        return list.stream()
                 .filter(cookie -> cookie.getName().equals("token"))
                 .findFirst().get().getValue();
+    }
+
+    private void validateToken(String token) {
         if (jwtUtils.isExpired(token)) {
             throw new RuntimeException("Token expired");
         }
-        Long total = 0L;
-        Long cart = jwtUtils.getCartFromRequest(token);
-        CartDto cartDto = iCartAPI.findById(cart);
+    }
+
+    private CartDto getCartDto(Long cartId) {
+        CartDto cartDto = iCartAPI.findById(cartId);
         if (cartDto.getTotal() == 0L) {
             throw new RuntimeException("Cart is empty");
         }
+        return cartDto;
+    }
+
+    private List<ProductDto> getProductsFromCart(CartDto cartDto) {
         Set<String> keys = cartDto.getItems().keySet();
         List<ProductDto> products = new ArrayList<>();
         for (String key : keys) {
-            if (iProductAPI.getProductByName(key).getStock() < cartDto.getItems().get(key) ) {
-                throw new RuntimeException("Te excediste en la cantidad de " + iProductAPI.getProductByName(key).getNameProduct() + "disponibles en stock");
-            }
-            Integer quantity = cartDto.getItems().get(key);
             ProductDto productDto = iProductAPI.getProductByName(key);
-            total += productDto.getPrice() * quantity;
+            if (productDto.getStock() < cartDto.getItems().get(key)) {
+                throw new RuntimeException("Te excediste en la cantidad de " + productDto.getNameProduct() + " disponibles en stock");
+            }
             productDto.setQuantity(cartDto.getItems().get(productDto.getNameProduct()));
             products.add(productDto);
         }
-        response.put("products", products);
+        return products;
+    }
+
+    private void updateProductStocks(CartDto cartDto, List<ProductDto> products) {
         products.forEach(productDto ->
                 iProductAPI.modifyStock(productDto.getIdProduct(),
                         productDto.getStock() - cartDto.getItems().get(productDto.getNameProduct())));
-        response.put("total", total);
-        Sale sale = Sale.builder()
+    }
+
+    private Long calculateTotal(List<ProductDto> products) {
+        return products.stream()
+                .mapToLong(productDto -> productDto.getPrice() * productDto.getQuantity())
+                .sum();
+    }
+
+    private Sale createSale(String token, CartDto cartDto, Long total) {
+        return Sale.builder()
                 .date(LocalDate.now())
                 .userEmail(jwtUtils.getUserEmailFromRequest(token))
                 .items(cartDto.getItems())
                 .total(total)
                 .dni(jwtUtils.getDniFromRequest(token))
                 .build();
-        response.put("email", sale.getUserEmail());
-        response.put("dni", sale.getDni());
-        response.put("date", sale.getDate());
-        iSaleRepository.save(sale);
-        iCartAPI.emptyCart(token);
-        return response;
-
-    }
-
-    public List<Sale> history(HttpServletRequest request) {
-        if (request.getCookies() == null) {
-            throw new RuntimeException("No token found");
-        }
-        List<Cookie> list = List.of(request.getCookies());
-        String token = list.stream()
-                .filter(cookie -> cookie.getName().equals("token"))
-                .findFirst().get().getValue();
-        if (jwtUtils.isExpired(token)) {
-            throw new RuntimeException("Token expired");
-        }
-        return iSaleRepository.findAllByUserEmail(jwtUtils.getUserEmailFromRequest(token));
     }
 }

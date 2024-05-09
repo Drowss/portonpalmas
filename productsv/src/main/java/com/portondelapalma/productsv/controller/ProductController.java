@@ -3,7 +3,8 @@ package com.portondelapalma.productsv.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.portondelapalma.productsv.dto.ProductDto;
 import com.portondelapalma.productsv.model.Product;
-import com.portondelapalma.productsv.service.IProductService;
+import com.portondelapalma.productsv.service.ProductService;
+import com.stripe.exception.StripeException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -20,7 +21,7 @@ import java.util.List;
 public class ProductController {
 
     @Autowired
-    private IProductService iProductService;
+    private ProductService iProductService;
 
     @GetMapping() //Endpoint para cliente
     public List<ProductDto> getAllProducts() {
@@ -33,7 +34,7 @@ public class ProductController {
     }
 
     @PostMapping("/upload") //Endpoint para admin
-    public ProductDto upload(@RequestPart("file") MultipartFile file, @Valid @RequestPart("product") String productJson) throws JsonProcessingException {
+    public ProductDto upload(@RequestPart("file") MultipartFile file, @Valid @RequestPart("product") String productJson) throws JsonProcessingException, StripeException {
         return iProductService.createProduct(file, productJson);
     }
 

@@ -70,6 +70,7 @@ services:
       - secret=${secret}
       - PRODUCTS_BUCKETNAME=${PRODUCTS_BUCKETNAME}
       - region=${region}
+      - stripeSecretKey=${stripeSecretKey}
     restart: always
 
   cart-app:
@@ -104,6 +105,7 @@ services:
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - secretKey=${secretKey}
       - expiration=${expiration}
+      - stripeSecretKey=${stripeSecretKey}
     restart: always
 
   api-gateway-app:

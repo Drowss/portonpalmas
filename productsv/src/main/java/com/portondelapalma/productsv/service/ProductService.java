@@ -6,10 +6,16 @@ import com.portondelapalma.productsv.dto.ProductDto;
 import com.portondelapalma.productsv.model.Category;
 import com.portondelapalma.productsv.model.Product;
 import com.portondelapalma.productsv.repository.IProductRepository;
+import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
+import com.stripe.model.Price;
+import com.stripe.param.PriceCreateParams;
+import com.stripe.param.ProductCreateParams;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,7 +28,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
-public class ProductService implements IProductService {
+public class ProductService {
 
     @Autowired
     private IProductRepository iProductRepository;
@@ -36,10 +42,12 @@ public class ProductService implements IProductService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Value("${stripeSecretKey}")
+    private String stripeSecretKey;
+
     private final Logger logger = LoggerFactory.getLogger(ProductService.class);
 
-    @Override
-    public ProductDto createProduct(MultipartFile multipartFile, String productJson) throws JsonProcessingException {
+    public ProductDto createProduct(MultipartFile multipartFile, String productJson) throws JsonProcessingException, StripeException {
         ProductDto productDto = objectMapper.readValue(productJson, ProductDto.class);
         String imagePath = s3.saveFile(multipartFile);
         productDto.setImagePath(imagePath);
@@ -53,12 +61,40 @@ public class ProductService implements IProductService {
                 .category(productDto.getCategory())
                 .build();
 
+        this.createProductStripe(product);
+
         iProductRepository.save(product);
         logger.info(productDto.getNameProduct() + " creado correctamente.");
         return productDto;
     }
 
-    @Override
+    public ResponseEntity<String> createProductStripe(Product product) throws StripeException {
+        Stripe.apiKey = stripeSecretKey;
+        ProductCreateParams params =
+                ProductCreateParams.builder()
+                        .setName(product.getNameProduct())
+                        .setDescription(product.getDescription())
+                        .addImage(product.getImagePath())
+                        .build();
+        com.stripe.model.Product productStripe = com.stripe.model.Product.create(params);
+        createPrice(productStripe.getId(), product);
+        return ResponseEntity.ok(productStripe.getId());
+    }
+
+    public ResponseEntity<String> createPrice(String productId, Product product) throws StripeException {
+
+        Stripe.apiKey = stripeSecretKey;
+        PriceCreateParams params =
+                PriceCreateParams.builder()
+                        .setCurrency("cop")
+                        .setUnitAmount(product.getPrice() * 100)
+                        .setProduct(productId)
+                        .build();
+        Price price = Price.create(params);
+        return ResponseEntity.ok(price.getId());
+    }
+
+
     public ResponseEntity<String> deleteProduct(Long idProduct) throws MalformedURLException, URISyntaxException {
         if (idProduct == null || idProduct < 0) {
             logger.error("ID de producto inválido: " + idProduct);
@@ -76,7 +112,6 @@ public class ProductService implements IProductService {
         return ResponseEntity.ok("Se ha eliminado la entidad correctamente");
     }
 
-    @Override
     public List<ProductDto> getAllProducts() {
         logger.info("Se han encontrado " + iProductRepository.findAll().size() + " productos");
         return iProductRepository.findAll()
@@ -85,7 +120,7 @@ public class ProductService implements IProductService {
                 .toList();
     }
 
-    @Override
+
     public List<ProductDto> getAllByCategory(String category) {
         Category categoryEnum = Category.valueOf(category.toUpperCase());
         List<Product> products = iProductRepository.getAllByCategory(categoryEnum);
@@ -95,7 +130,7 @@ public class ProductService implements IProductService {
                 .toList();
     }
 
-    @Override
+
     public Product putProduct(Long id, MultipartFile multipartFile, String productJson) throws URISyntaxException, JsonProcessingException {
         Product product = iProductRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("El producto no fue encontrado " + id));
@@ -120,7 +155,6 @@ public class ProductService implements IProductService {
         return iProductRepository.save(product);
     }
 
-    @Override
     public void deleteImage(String url) throws URISyntaxException {
         URI uri = new URI(url);
         String path = uri.getPath();
@@ -128,7 +162,6 @@ public class ProductService implements IProductService {
         logger.info("Imagen eliminada correctamente");
     }
 
-    @Override
     public ProductDto getById(Long idProduct) {
         Product product = iProductRepository.findById(idProduct).orElseThrow(() -> {
             logger.error("No se pudo encontrar un producto con el ID: " + idProduct);
@@ -137,12 +170,10 @@ public class ProductService implements IProductService {
         return product.toDto();
     }
 
-    @Override
     public ProductDto getByName(String nameProduct) {
         return iProductRepository.getByName(nameProduct).toDto();
     }
 
-    @Override
     public void modifyStock(Long idProduct, Integer stock) {
         Product product = iProductRepository.findById(idProduct).orElseThrow(() -> {
             logger.error("No se pudo encontrar un producto con el ID: " + idProduct);

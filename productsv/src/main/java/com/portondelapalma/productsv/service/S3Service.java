@@ -29,6 +29,7 @@ public class S3Service implements IFileService {
         try {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(file.getSize());
+            metadata.setContentType("image/png");
             s3.putObject(new PutObjectRequest(bucketName, originalFilename, file.getInputStream(), metadata));
             return s3.getUrl(bucketName, originalFilename).toString();
         } catch (IOException e) {
