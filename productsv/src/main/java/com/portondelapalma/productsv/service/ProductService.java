@@ -6,11 +6,6 @@ import com.portondelapalma.productsv.dto.ProductDto;
 import com.portondelapalma.productsv.model.Category;
 import com.portondelapalma.productsv.model.Product;
 import com.portondelapalma.productsv.repository.IProductRepository;
-import com.stripe.Stripe;
-import com.stripe.exception.StripeException;
-import com.stripe.model.Price;
-import com.stripe.param.PriceCreateParams;
-import com.stripe.param.ProductCreateParams;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,12 +37,9 @@ public class ProductService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Value("${stripeSecretKey}")
-    private String stripeSecretKey;
-
     private final Logger logger = LoggerFactory.getLogger(ProductService.class);
 
-    public ProductDto createProduct(MultipartFile multipartFile, String productJson) throws JsonProcessingException, StripeException {
+    public ProductDto createProduct(MultipartFile multipartFile, String productJson) throws JsonProcessingException {
         ProductDto productDto = objectMapper.readValue(productJson, ProductDto.class);
         String imagePath = s3.saveFile(multipartFile);
         productDto.setImagePath(imagePath);
@@ -61,37 +53,9 @@ public class ProductService {
                 .category(productDto.getCategory())
                 .build();
 
-        this.createProductStripe(product);
-
         iProductRepository.save(product);
         logger.info(productDto.getNameProduct() + " creado correctamente.");
         return productDto;
-    }
-
-    public ResponseEntity<String> createProductStripe(Product product) throws StripeException {
-        Stripe.apiKey = stripeSecretKey;
-        ProductCreateParams params =
-                ProductCreateParams.builder()
-                        .setName(product.getNameProduct())
-                        .setDescription(product.getDescription())
-                        .addImage(product.getImagePath())
-                        .build();
-        com.stripe.model.Product productStripe = com.stripe.model.Product.create(params);
-        createPrice(productStripe.getId(), product);
-        return ResponseEntity.ok(productStripe.getId());
-    }
-
-    public ResponseEntity<String> createPrice(String productId, Product product) throws StripeException {
-
-        Stripe.apiKey = stripeSecretKey;
-        PriceCreateParams params =
-                PriceCreateParams.builder()
-                        .setCurrency("cop")
-                        .setUnitAmount(product.getPrice() * 100)
-                        .setProduct(productId)
-                        .build();
-        Price price = Price.create(params);
-        return ResponseEntity.ok(price.getId());
     }
 
 

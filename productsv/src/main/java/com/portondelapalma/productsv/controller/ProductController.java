@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.portondelapalma.productsv.dto.ProductDto;
 import com.portondelapalma.productsv.model.Product;
 import com.portondelapalma.productsv.service.ProductService;
-import com.stripe.exception.StripeException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -34,7 +33,7 @@ public class ProductController {
     }
 
     @PostMapping("/upload") //Endpoint para admin
-    public ProductDto upload(@RequestPart("file") MultipartFile file, @Valid @RequestPart("product") String productJson) throws JsonProcessingException, StripeException {
+    public ProductDto upload(@RequestPart("file") MultipartFile file, @Valid @RequestPart("product") String productJson) throws JsonProcessingException {
         return iProductService.createProduct(file, productJson);
     }
 

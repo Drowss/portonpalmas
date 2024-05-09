@@ -70,7 +70,6 @@ services:
       - secret=${secret}
       - PRODUCTS_BUCKETNAME=${PRODUCTS_BUCKETNAME}
       - region=${region}
-      - stripeSecretKey=${stripeSecretKey}
     restart: always
 
   cart-app:
