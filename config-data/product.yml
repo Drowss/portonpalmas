@@ -35,3 +35,4 @@ accessKey: ${access}
 secret: ${secret}
 bucketName: ${PRODUCTS_BUCKETNAME}
 region: ${region}
+stripeSecretKey: ${stripeSecretKey}

@@ -20,3 +20,4 @@ eureka:
     service-url:
       defaultZone: http://eureka-app:8761/eureka
 secretKey: ${secretKey}
+stripeSecretKey: ${stripeSecretKey}
