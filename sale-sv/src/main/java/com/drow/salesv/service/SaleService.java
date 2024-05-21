@@ -59,7 +59,7 @@ public class SaleService {
         return iSaleRepository.findAllByUserEmail(jwtUtils.getUserEmailFromRequest(token));
     }
 
-    public RedirectView createCheckoutSession(HttpServletRequest request) throws StripeException {
+    public String createCheckoutSession(HttpServletRequest request) throws StripeException {
         Stripe.apiKey = stripeSecretKey;
 
         String token = getTokenFromRequest(request);
@@ -70,6 +70,7 @@ public class SaleService {
 
         String YOUR_DOMAIN = "http://localhost:443/sale/v1";
         SessionCreateParams.Builder paramsBuilder = SessionCreateParams.builder()
+                .setCustomerEmail(jwtUtils.getUserEmailFromRequest(token))
                 .setMode(SessionCreateParams.Mode.PAYMENT)
                 .setSuccessUrl(YOUR_DOMAIN + "/done")
                 .setCancelUrl(YOUR_DOMAIN + "?canceled=true");
@@ -94,7 +95,7 @@ public class SaleService {
 
         Session session = Session.create(params);
         System.out.println(session.getUrl());
-        return new RedirectView(session.getUrl());
+        return session.getUrl();
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {

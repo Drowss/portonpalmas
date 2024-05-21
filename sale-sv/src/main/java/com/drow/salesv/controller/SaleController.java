@@ -22,7 +22,7 @@ public class SaleController {
     private SaleService saleService;
 
     @GetMapping("/successful")
-    public RedirectView successful(HttpServletRequest request) throws StripeException {
+    public String successful(HttpServletRequest request) throws StripeException {
         return saleService.createCheckoutSession(request);
     }
 

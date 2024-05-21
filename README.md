@@ -32,6 +32,7 @@ expiration=your_expiration_time
 secretKey=your_secret_key
 email=your_email
 emailpassword=your_email_app_password
+stripeSecretKey=your_stripe_secret_key
 ```
 
 # How to Run
@@ -78,8 +79,8 @@ The gateway is exposed on port `443`
 # Cart Service
 | Endpoint                                     | HTTP Method | Description                                                              | Request Body                                                                                                                                                                                                                                                          |
 |----------------------------------------------|-------------|--------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `/cart/v1/add-product?idProduct=(id)`        | PUT         | Endpoint for getting cart from the cookie, it adds item to the cart      | `{}` | Admin (verified from a cookie) |
-| `/cart/v1/delete-product?nameProduct=(name)` | PUT         | Endpoint for getting cart from the cookie, it removes item from the cart | `{}`                                                                                                                                                                                                                                                                  |
+| `/cart/v1/add-product?idProduct={id}`        | PUT         | Endpoint for getting cart from the cookie, it adds item to the cart      | `{}` | Admin (verified from a cookie) |
+| `/cart/v1/delete-product?nameProduct={name}` | PUT         | Endpoint for getting cart from the cookie, it removes item from the cart | `{}`                                                                                                                                                                                                                                                                  |
 
 # Sale Service
 | Endpoint              | HTTP Method | Description                                                                                                       | Request Body | Response Body                                                                                                   |
