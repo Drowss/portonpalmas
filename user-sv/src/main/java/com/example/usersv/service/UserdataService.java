@@ -80,7 +80,7 @@ public class UserdataService {
         }
         String token = jwtUtils.generateAccesToken(userdata.getRole(), userdata.getName(), userdata.getIdCart(), userdata.getEmail(), userdata.getDni());
         Cookie cookie = new Cookie("token", token);
-        cookie.setHttpOnly(true);
+        cookie.setHttpOnly(false);
         cookie.setPath("/");
         cookie.setMaxAge((int) Duration.ofMinutes(1440L).toSeconds()); // 1 dia
         response.addCookie(cookie);
