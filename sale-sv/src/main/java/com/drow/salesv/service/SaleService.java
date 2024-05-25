@@ -4,6 +4,7 @@ import com.drow.salesv.dto.CartDto;
 import com.drow.salesv.dto.ProductDto;
 import com.drow.salesv.jwt.JwtUtils;
 import com.drow.salesv.model.Sale;
+import com.drow.salesv.model.SaleInf;
 import com.drow.salesv.repository.ICartAPI;
 import com.drow.salesv.repository.IProductAPI;
 import com.drow.salesv.repository.ISaleRepository;
@@ -156,5 +157,29 @@ public class SaleService {
                 .total(total)
                 .dni(jwtUtils.getDniFromRequest(token))
                 .build();
+    }
+
+    public List<SaleInf> myHistory(HttpServletRequest request) {
+        Set<String> keys = new HashSet<>();
+        List<SaleInf> products = new ArrayList<>();
+        String token = getTokenFromRequest(request);
+        validateToken(token);
+        List<Sale> sales = iSaleRepository.findAllByDni(jwtUtils.getDniFromRequest(token));
+        for (Sale sale : sales) {
+            keys = sale.getItems().keySet();
+            SaleInf saleInf = SaleInf.builder()
+                    .id(sale.getId())
+                    .date(sale.getDate())
+                    .userEmail(sale.getUserEmail())
+                    .dni(sale.getDni())
+                    .total(sale.getTotal())
+                    .build();
+            for (String key : keys) {
+                ProductDto productDto = iProductAPI.getProductByName(key);
+                saleInf.getItems().add(productDto);
+            }
+            products.add(saleInf);
+        }
+        return products;
     }
 }

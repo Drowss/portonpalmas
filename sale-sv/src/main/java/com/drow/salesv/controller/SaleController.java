@@ -1,6 +1,7 @@
 package com.drow.salesv.controller;
 
 import com.drow.salesv.model.Sale;
+import com.drow.salesv.model.SaleInf;
 import com.drow.salesv.service.SaleService;
 import com.stripe.exception.StripeException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,5 +35,10 @@ public class SaleController {
     @GetMapping("/done")
     public RedirectView done(HttpServletRequest request) {
         return saleService.successful(request);
+    }
+
+    @GetMapping("/my-history")
+    public List<SaleInf> myHistory(HttpServletRequest request) {
+        return saleService.myHistory(request);
     }
 }
