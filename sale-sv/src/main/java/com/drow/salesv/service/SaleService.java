@@ -173,9 +173,11 @@ public class SaleService {
                     .userEmail(sale.getUserEmail())
                     .dni(sale.getDni())
                     .total(sale.getTotal())
+                    .items(new ArrayList<>())
                     .build();
             for (String key : keys) {
                 ProductDto productDto = iProductAPI.getProductByName(key);
+                productDto.setQuantity(sale.getItems().get(key));
                 saleInf.getItems().add(productDto);
             }
             products.add(saleInf);
