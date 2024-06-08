@@ -21,10 +21,15 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idProduct;
+    @Column(nullable = false, length = 100)
     private String nameProduct;
+    @Column(nullable = false, length = 1000)
     private String description;
+    @Column(nullable = false)
     private Long price;
+    @Column(nullable = false, columnDefinition = "int check(stock >= 0)")
     private Integer stock;
+    @Column(nullable = false)
     private String imagePath;
     private Category category;
 

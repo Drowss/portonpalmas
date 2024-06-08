@@ -28,8 +28,8 @@ public class SaleController {
     }
 
     @GetMapping("/history")
-    public List<Sale> history(HttpServletRequest request) {
-        return saleService.history(request);
+    public List<SaleInf> history() {
+        return saleService.history();
     }
 
     @GetMapping("/done")

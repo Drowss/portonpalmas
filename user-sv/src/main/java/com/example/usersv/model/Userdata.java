@@ -26,19 +26,24 @@ public class Userdata {
     private String email;
 
     @NotBlank(message = "El nombre es obligatorio")
+    @Column(nullable = false, length = 100)
     private String name;
 
     @NotBlank(message = "La contraseña es obligatoria")
+    @Column(nullable = false)
     private String password;
 
     @NotBlank(message = "La dirección es obligatoria")
+    @Column(nullable = false, length = 200)
     private String address;
 
     @NotBlank(message = "El número de teléfono es obligatorio")
+    @Column(nullable = false)
     private String cellphone;
     @Column(unique = true)
     @NotNull(message = "El DNI es obligatorio")
     private String dni;
+    @Column(nullable = false)
     private String role;
     private Long idCart;
     private String resetToken;

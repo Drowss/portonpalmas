@@ -214,4 +214,11 @@ public class UserdataService {
         return ResponseEntity.ok("Password reset successfully");
 
     }
+
+    public UserdataDto getUser(String email) {
+        return modelMapper.map(iUserdataRepository.findById(email).orElseThrow(() -> {
+            logger.error("Usuario no encontrado");
+            return new UsernameNotFoundException("User not found");
+        }), UserdataDto.class);
+    }
 }

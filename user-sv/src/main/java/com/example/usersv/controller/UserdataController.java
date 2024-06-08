@@ -56,4 +56,9 @@ public class UserdataController {
     public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestBody NewPasswordRequest newPasswordRequest) {
         return userdataService.resetPassword(token, newPasswordRequest);
     }
+
+    @GetMapping("/get-user")
+    public UserdataDto getUser(@RequestParam String email) {
+        return userdataService.getUser(email);
+    }
 }

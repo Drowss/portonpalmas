@@ -8,6 +8,7 @@ import com.drow.salesv.model.SaleInf;
 import com.drow.salesv.repository.ICartAPI;
 import com.drow.salesv.repository.IProductAPI;
 import com.drow.salesv.repository.ISaleRepository;
+import com.drow.salesv.repository.IUserdataAPI;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
@@ -40,6 +41,9 @@ public class SaleService {
     @Value("${stripeSecretKey}")
     private String stripeSecretKey;
 
+    @Autowired
+    private IUserdataAPI iUserdataAPI;
+
     public RedirectView successful(HttpServletRequest request) {
         String token = getTokenFromRequest(request);
         validateToken(token);
@@ -54,10 +58,29 @@ public class SaleService {
         return new RedirectView("http://localhost:4200");
     }
 
-    public List<Sale> history(HttpServletRequest request) {
-        String token = getTokenFromRequest(request);
-        validateToken(token);
-        return iSaleRepository.findAllByUserEmail(jwtUtils.getUserEmailFromRequest(token));
+    public List<SaleInf> history() {
+        Set<String> keys = new HashSet<>();
+        List<SaleInf> saleInfs = new ArrayList<>();
+        List<Sale> sales = iSaleRepository.findAll();
+        for (Sale sale : sales) {
+            keys = sale.getItems().keySet();
+            SaleInf saleInf = SaleInf.builder()
+                    .id(sale.getId())
+                    .date(sale.getDate())
+                    .userEmail(sale.getUserEmail())
+                    .address(sale.getAddress())
+                    .dni(sale.getDni())
+                    .total(sale.getTotal())
+                    .items(new ArrayList<>())
+                    .build();
+            for (String key : keys) {
+                ProductDto productDto = iProductAPI.getProductByName(key);
+                productDto.setQuantity(sale.getItems().get(key));
+                saleInf.getItems().add(productDto);
+            }
+            saleInfs.add(saleInf);
+        }
+        return saleInfs;
     }
 
     public String createCheckoutSession(HttpServletRequest request) throws StripeException {
@@ -155,6 +178,7 @@ public class SaleService {
                 .userEmail(jwtUtils.getUserEmailFromRequest(token))
                 .items(cartDto.getItems())
                 .total(total)
+                .address(iUserdataAPI.getUser(jwtUtils.getUserEmailFromRequest(token)).getAddress())
                 .dni(jwtUtils.getDniFromRequest(token))
                 .build();
     }
@@ -171,6 +195,7 @@ public class SaleService {
                     .id(sale.getId())
                     .date(sale.getDate())
                     .userEmail(sale.getUserEmail())
+                    .address(sale.getAddress())
                     .dni(sale.getDni())
                     .total(sale.getTotal())
                     .items(new ArrayList<>())

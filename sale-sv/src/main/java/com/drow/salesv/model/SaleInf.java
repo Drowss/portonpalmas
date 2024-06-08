@@ -21,4 +21,5 @@ public class SaleInf {
     private String dni;
     private List<ProductDto> items;
     private LocalDate date;
+    private String address;
 }

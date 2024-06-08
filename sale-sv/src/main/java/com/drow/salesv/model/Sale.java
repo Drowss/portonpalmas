@@ -28,4 +28,5 @@ public class Sale {
     private Map<String, Integer> items;
 
     private LocalDate date;
+    private String address;
 }
