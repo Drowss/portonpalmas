@@ -1,6 +1,7 @@
 .idea
 horse-sv/src/main/resources/application.yml
 .env
+porton.pem
 **/mvnw
 **/mvnw.cmd
 **/help.md
