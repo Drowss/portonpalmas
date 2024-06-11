@@ -15,7 +15,7 @@ spring.cloud.gateway:
   globalcors:
     corsConfigurations:
       '[/**]':
-        allowedOrigins: "http://localhost:4200"
+        allowedOrigins: "http://34.202.233.54:80"
         allowedMethods:
           - GET
           - POST
