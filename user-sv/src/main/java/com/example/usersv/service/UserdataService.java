@@ -168,7 +168,7 @@ public class UserdataService {
                     + "<div style='background-color: #faf0be; border-radius: 10px; padding: 20px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);'>"
                     + "<h1 style='color: black; margin-top: 0;'>Porton Palmas</h1>"
                     + "<p>Para restablecer tu contraseña, haz clic en el siguiente enlace:</p>"
-                    + "<a href='http://34.202.233.54:80/reset-password?token=" + token + "' style='display: inline-block; font-weight: bold; background-color: #fcc200; color: black; padding: 10px 20px; margin: 20px 0; text-decoration: none; border-radius: 5px;'>Restablecer contraseña</a>"
+                    + "<a href='http://54.208.55.182:4200/reset-password?token=" + token + "' style='display: inline-block; font-weight: bold; background-color: #fcc200; color: black; padding: 10px 20px; margin: 20px 0; text-decoration: none; border-radius: 5px;'>Restablecer contraseña</a>"
                     + "<p style='color: #888888;'>Si no solicitaste un restablecimiento de contraseña, ignora este correo electrónico.</p>"
                     + "</div>"
                     + "</div>"

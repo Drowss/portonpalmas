@@ -55,7 +55,7 @@ public class SaleService {
         Sale sale = createSale(token, cartDto, total);
         iSaleRepository.save(sale);
         iCartAPI.emptyCart(token);
-        return new RedirectView("http://34.202.233.54:80");
+        return new RedirectView("http://54.208.55.182:4200");
     }
 
     public List<SaleInf> history() {
@@ -92,7 +92,7 @@ public class SaleService {
         CartDto cartDto = getCartDto(cartId);
         List<ProductDto> products = getProductsFromCart(cartDto);
 
-        String YOUR_DOMAIN = "http://34.202.233.54:443/sale/v1";
+        String YOUR_DOMAIN = "http://54.208.55.182:443/sale/v1";
         SessionCreateParams.Builder paramsBuilder = SessionCreateParams.builder()
                 .setCustomerEmail(jwtUtils.getUserEmailFromRequest(token))
                 .setMode(SessionCreateParams.Mode.PAYMENT)
