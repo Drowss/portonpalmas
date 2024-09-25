@@ -122,7 +122,7 @@ public class SaleService {
         return session.getUrl();
     }
 
-    private String getTokenFromRequest(HttpServletRequest request) {
+    public String getTokenFromRequest(HttpServletRequest request) {
         if (request.getCookies() == null) {
             throw new RuntimeException("No token found");
         }
@@ -138,7 +138,7 @@ public class SaleService {
         }
     }
 
-    private CartDto getCartDto(Long cartId) {
+    public CartDto getCartDto(Long cartId) {
         CartDto cartDto = iCartAPI.findById(cartId);
         if (cartDto.getTotal() == 0L) {
             throw new RuntimeException("Cart is empty");
@@ -146,7 +146,7 @@ public class SaleService {
         return cartDto;
     }
 
-    private List<ProductDto> getProductsFromCart(CartDto cartDto) {
+    public List<ProductDto> getProductsFromCart(CartDto cartDto) {
         Set<String> keys = cartDto.getItems().keySet();
         List<ProductDto> products = new ArrayList<>();
         for (String key : keys) {
