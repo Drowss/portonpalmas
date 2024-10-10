@@ -13,6 +13,8 @@ import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
+import com.twilio.Twilio;
+import com.twilio.rest.api.v2010.account.Message;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +46,15 @@ public class SaleService {
     @Autowired
     private IUserdataAPI iUserdataAPI;
 
+    @Value("${twilioAccountSid}")
+    private String twilioAccountSid;
+    @Value("${twilioPassword}")
+    private String password;
+    @Value("${twilioPhoneNumber}")
+    private String twilioPhoneNumber;
+    @Value("${twilioMyPhoneNumber}")
+    private String twilioMyPhoneNumber;
+
     public RedirectView successful(HttpServletRequest request) {
         String token = getTokenFromRequest(request);
         validateToken(token);
@@ -55,6 +66,11 @@ public class SaleService {
         Sale sale = createSale(token, cartDto, total);
         iSaleRepository.save(sale);
         iCartAPI.emptyCart(token);
+        Twilio.init(twilioAccountSid, password);
+        Message.creator(
+                new com.twilio.type.PhoneNumber(twilioMyPhoneNumber),
+                new com.twilio.type.PhoneNumber(twilioPhoneNumber),
+                "Gracias por su compra en portón de la palma, su pedido está siendo preparado y será enviado en los próximos días calendario").create();
         return new RedirectView("http://localhost:4200");
     }
 
