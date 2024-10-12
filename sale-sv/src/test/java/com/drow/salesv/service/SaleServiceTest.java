@@ -50,15 +50,12 @@ class SaleServiceTest {
 
     @Test
     void testGetCartDto_CartNotEmpty() {
-        // Arrange
         Long cartId = 1L;
         CartDto cartDto = new CartDto(cartId, Map.of("item1", 2), 100L);
         when(iCartAPI.findById(cartId)).thenReturn(cartDto);
 
-        // Act
         CartDto result = saleService.getCartDto(cartId);
 
-        // Assert
         assertNotNull(result);
         assertEquals(cartId, result.getIdCart());
         assertEquals(100L, result.getTotal());
@@ -171,14 +168,11 @@ class SaleServiceTest {
 
     @Test
     void testGetTokenFromRequest_Success() {
-        // Arrange
         Cookie[] cookies = { new Cookie("token", "12345") };
         when(request.getCookies()).thenReturn(cookies);
 
-        // Act
         String token = saleService.getTokenFromRequest(request);
 
-        // Assert
         assertEquals("12345", token);
     }
 
@@ -196,11 +190,9 @@ class SaleServiceTest {
 
     @Test
     void testGetTokenFromRequest_NoTokenCookie() {
-        // Arrange
         Cookie[] cookies = { new Cookie("session", "abcde") };
         when(request.getCookies()).thenReturn(cookies);
 
-        // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             saleService.getTokenFromRequest(request);
         });

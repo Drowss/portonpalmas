@@ -36,15 +36,12 @@ class CartServiceTest {
 
     @Test
     void testCreateCart() {
-        // Arrange
         Cart cart = new Cart();
         cart.setId(1L);
         when(iCartRepository.save(cart)).thenReturn(cart);
 
-        // Act
         Long cartId = cartService.createCart(cart);
 
-        // Assert
         assertEquals(1L, cartId);
         verify(iCartRepository, times(1)).save(cart);
     }
@@ -66,10 +63,8 @@ class CartServiceTest {
 
     @Test
     void testFindCart_NotFound() {
-        // Arrange
         when(iCartRepository.findById(1L)).thenReturn(Optional.empty());
 
-        // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             cartService.findCart(1L);
         });
@@ -78,7 +73,6 @@ class CartServiceTest {
 
     @Test
     void testAddProductCookie() {
-        // Arrange
         HttpServletRequest request = mock(HttpServletRequest.class);
         Cookie[] cookies = { new Cookie("token", "12345") };
         when(request.getCookies()).thenReturn(cookies);
@@ -95,10 +89,8 @@ class CartServiceTest {
         when(iProductAPI.getProductById(1L)).thenReturn(productDto);
         when(iCartRepository.save(any(Cart.class))).thenReturn(cart);
 
-        // Act
         cartService.addProductCookie(1L, request);
 
-        // Assert
         verify(iCartRepository, times(1)).save(any(Cart.class));
     }
 
@@ -116,16 +108,13 @@ class CartServiceTest {
         when(iCartRepository.findById(1L)).thenReturn(Optional.of(cart));
         when(iCartRepository.save(any(Cart.class))).thenReturn(cart);
 
-        // Act
         cartService.emptyCart(token);
 
-        // Assert
         verify(iCartRepository, times(1)).save(any(Cart.class));
     }
 
     @Test
     void testGetCartFromCookie_Success() {
-        // Arrange
         HttpServletRequest request = mock(HttpServletRequest.class);
         Cookie[] cookies = { new Cookie("token", "12345") };
         when(request.getCookies()).thenReturn(cookies);
@@ -136,21 +125,17 @@ class CartServiceTest {
         cart.setId(1L);
         when(iCartRepository.findById(1L)).thenReturn(Optional.of(cart));
 
-        // Act
         CartDto cartDto = cartService.getCartFromCookie(request);
 
-        // Assert
         assertNotNull(cartDto);
         assertEquals(1L, cartDto.getIdCart());
     }
 
     @Test
     void testGetCartFromCookie_NoCookies() {
-        // Arrange
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getCookies()).thenReturn(null);
 
-        // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             cartService.getCartFromCookie(request);
         });
@@ -159,13 +144,11 @@ class CartServiceTest {
 
     @Test
     void testGetCartFromCookie_TokenExpired() {
-        // Arrange
         HttpServletRequest request = mock(HttpServletRequest.class);
         Cookie[] cookies = { new Cookie("token", "12345") };
         when(request.getCookies()).thenReturn(cookies);
         when(jwtUtils.isExpired("12345")).thenReturn(true);
 
-        // Act & Assert
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             cartService.getCartFromCookie(request);
         });
